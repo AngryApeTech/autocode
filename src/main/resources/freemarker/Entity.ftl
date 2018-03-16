@@ -1,56 +1,35 @@
-package ${package};
+package ${package}.entity;
 
-<#list imports as imp>
-import ${imp};
-</#list>
+import java.util.*;
+import java.math.BigDecimal;
 
 /**
-* 描述：${table_annotation}模型
+* 描述：${tableComment}
 * @author ${author}
 * @date ${date}
 */
-public class ${className} extends BaseEntity {
+public class ${entityName} extends BaseEntity {
 
-<#if model_column?exists>
-    <#list model_column as model>
+<#if columns??>
+    <#list columns as column>
     /**
-    *${model.comment!}
+    *${column.comment!}
     */
-        <#if (model.jdbcType = 'varchar' || model.jdbcType = 'text')>
-    @Column(name = "${model.columnName}",columnDefinition = "VARCHAR")
-    private String ${model.fieldName?uncap_first};
+    private ${column.javaType?split(".")?last} ${column.fieldName?uncap_first};
 
-        </#if>
-        <#if model.jdbcType = 'timestamp' >
-    @Column(name = "${model.columnName}",columnDefinition = "TIMESTAMP")
-    private Date ${model.fieldName?uncap_first};
-
-        </#if>
     </#list>
 </#if>
 
-<#if model_column?exists>
-    <#list model_column as model>
-        <#if (model.jdbcType = 'varchar' || model.jdbcType = 'text')>
-    public String get${model.fieldName}() {
-        return this.${model.fieldName?uncap_first};
+<#if columns??>
+    <#list columns as column>
+    public ${column.javaType?split(".")?last} get${column.fieldName?cap_first}() {
+        return this.${column.fieldName?uncap_first};
     }
 
-    public void set${model.fieldName}(String ${model.fieldName?uncap_first}) {
-        this.${model.fieldName?uncap_first} = ${model.fieldName?uncap_first};
+    public void set${column.fieldName?cap_first}(${column.javaType?split(".")?last} ${column.fieldName?uncap_first}) {
+        this.${column.fieldName?uncap_first} = ${column.fieldName?uncap_first};
     }
 
-        </#if>
-        <#if model.jdbcType = 'timestamp' >
-    public Date get${model.fieldName}() {
-        return this.${model.fieldName?uncap_first};
-    }
-
-    public void set${model.fieldName}(Date ${model.fieldName?uncap_first}) {
-        this.${model.fieldName?uncap_first} = ${model.fieldName?uncap_first};
-    }
-
-        </#if>
     </#list>
 </#if>
 

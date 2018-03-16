@@ -23,7 +23,7 @@
         </#if>
     </sql>
 
-<#-- single entity save -->
+    ${'<!-- single entity save -->'}
     <insert id="save">
         insert into
         <include refid="tableName"/>
@@ -41,7 +41,7 @@
         )
     </insert>
 
-<#-- mutipule entity save -->
+    ${'<!-- mutipule entity save -->'}
     <insert id="insertBatch">
         insert into
         <include refid="tableName"/>
@@ -61,14 +61,14 @@
         </foreach>
     </insert>
 
-<#-- get entity by key -->
+    ${'<!-- get entity by key -->'}
     <select id="getByKey" resultMap="resultMap">
         select <include refid="columns"/>
         from <include refid="tableName"/>
         where ${keyName} = ${r'#{key}'}
     </select>
 
-<#-- update entity -->
+    ${'<!-- update entity -->'}
     <update id="update" parameterType="${package}.entity.${entityName}">
         update
         <include refid="tableName"/>
@@ -79,7 +79,7 @@
                     <#if column?is_last>
             ${column.columnName} = ${r'#{entity'+'.'+column.columnName+'}'}
                     <#else >
-                        ${r'#{entity'+'.'+column.columnName+'}'},
+            ${column.columnName} = ${r'#{entity'+'.'+column.columnName+'}'},
                     </#if>
                 </#if>
             </#list>
@@ -87,10 +87,9 @@
         where ${keyName} = ${r'#{entity'+'.'+ keyField +'}'},
     </update>
 
-<#-- delete entity by key -->
+    ${'<!-- delete entity by key -->'}
     <update id="deleteByKey">
-        update
-        <include refid="tableName"/>
+        update <include refid="tableName"/>
         set ${deleteColumn}=1 where ${deleteColumn}=0 and ${keyName}=${r'#{key}'}
     </update>
 

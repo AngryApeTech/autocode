@@ -9,7 +9,7 @@ import java.util.Properties;
  */
 public abstract class DbConnection {
 
-    protected Properties conf = new Properties();
+    protected static Properties conf = new Properties();
 
     public abstract Connection getConnection();
 
