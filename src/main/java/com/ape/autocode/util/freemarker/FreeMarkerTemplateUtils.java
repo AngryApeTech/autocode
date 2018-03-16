@@ -1,4 +1,4 @@
-package com.ape.autocode;
+package com.ape.autocode.util.freemarker;
 
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.NullCacheStorage;

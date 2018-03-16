@@ -1,4 +1,4 @@
-package com.ape.autocode;
+package com.ape.autocode.entity;
 
 /**
  * 数据库字段封装类

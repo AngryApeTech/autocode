@@ -1,4 +1,4 @@
-package com.ape.autocode;
+package com.ape.autocode.util.db;
 
 import java.sql.Connection;
 import java.util.Properties;

@@ -3,8 +3,10 @@
  */
 package com.ape.autocode;
 
+import com.ape.autocode.entity.ColumnMeta;
+import com.ape.autocode.util.db.JdbcUtil;
+import com.ape.autocode.util.freemarker.FreeMarkerTemplateUtils;
 import freemarker.template.Template;
-import org.springframework.util.StringUtils;
 
 import java.io.*;
 import java.sql.Connection;
@@ -30,7 +32,7 @@ public class CodeGeneratorUtils {
     private final String DRIVER = "com.mysql.jdbc.Driver";
     private final String diskPath = "D://test/";
     private final String deleteColumn = "disabled";
-    private final String changeTableName = replaceUnderLineAndUpperCase(tableName);
+    private final String changeTableName = JdbcUtil.parseCamelName(tableName);
     private final String packagePath = packageName.replace(".", "/").concat("/");
 
     public Connection getConnection() throws Exception {
@@ -42,19 +44,6 @@ public class CodeGeneratorUtils {
     public static void main(String[] args) throws Exception {
         CodeGeneratorUtils codeGeneratorUtils = new CodeGeneratorUtils();
         codeGeneratorUtils.generate();
-    }
-
-    public CodeGeneratorUtils() {
-        init();
-    }
-
-    public void init() {
-        //        File path = new File(diskPath);
-        //        if (!path.exists()) {
-        //            if (path.mkdirs()) {
-        //                System.out.println("create path [] successfully !");
-        //            }
-        //        }
     }
 
     public void generate() throws Exception {
@@ -166,23 +155,6 @@ public class CodeGeneratorUtils {
         FileOutputStream fos = new FileOutputStream(mapperFile);
         Writer out = new BufferedWriter(new OutputStreamWriter(fos, "utf-8"), 10240);
         template.process(dataMap, out);
-    }
-
-    public String replaceUnderLineAndUpperCase(String str) {
-        StringBuffer sb = new StringBuffer();
-        sb.append(str);
-        int count = sb.indexOf("_");
-        while (count != 0) {
-            int num = sb.indexOf("_", count);
-            count = num + 1;
-            if (num != -1) {
-                char ss = sb.charAt(count);
-                char ia = (char) (ss - 32);
-                sb.replace(count, count + 1, ia + "");
-            }
-        }
-        String result = sb.toString().replaceAll("_", "");
-        return StringUtils.capitalize(result);
     }
 
 }
