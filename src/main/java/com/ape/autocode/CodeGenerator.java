@@ -19,7 +19,7 @@ import java.util.*;
  * @auther qiys@hzzh.com
  * @date 2018-03-15
  */
-public class CodeGeneratorUtils {
+public class CodeGenerator {
 
     private final String AUTHOR = "AngryApe";
     private final String CURRENT_DATE = "2017/05/03";
@@ -42,8 +42,8 @@ public class CodeGeneratorUtils {
     }
 
     public static void main(String[] args) throws Exception {
-        CodeGeneratorUtils codeGeneratorUtils = new CodeGeneratorUtils();
-        codeGeneratorUtils.generate();
+        CodeGenerator codeGenerator = new CodeGenerator();
+        codeGenerator.generate();
     }
 
     public void generate() throws Exception {
