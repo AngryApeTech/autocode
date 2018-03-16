@@ -1,23 +1,23 @@
-package ${packageName}.dao;
+package ${package}.dao;
 
-import ${packageName}.entity.${table_name};
+import ${package}.entity.${entityName};
 
 import org.apache.ibatis.annotations.Param;
 import java.util.*;
 
 /**
-* 描述：${table_annotation}Dao
+* 描述：${tableComment}
 * @author ${author}
 * @date ${date}
 */
-public interface ${table_name}Dao {
-    save(@Param("entity")${table_name} entity);
+public interface ${entityName}Dao {
+    int save(@Param("entity")${entityName} entity);
 
-    saveBatch(@Param("entities")List<${table_name}> entities);
+    int saveBatch(@Param("entities")List<${entityName}> entities);
 
-    update(@Param("entity")${table_name} entity);
+    int update(@Param("entity")${entityName} entity);
 
-    getByKey(String key);
+    ${entityName} getByKey(@Param("key")String key);
 
-    deleteByKey(String key);
+    int deleteByKey(String key);
 }

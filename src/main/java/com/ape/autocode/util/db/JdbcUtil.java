@@ -2,19 +2,32 @@ package com.ape.autocode.util.db;
 
 import com.ape.autocode.entity.ColumnMeta;
 import com.ape.autocode.entity.TableMeta;
-import org.springframework.util.StringUtils;
+import com.sun.xml.internal.ws.util.StringUtils;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
+
+import static com.ape.autocode.util.db.DBConfig.*;
 
 /**
  * @auther qiys@hzzh.com
  * @date 2018-03-15
  */
 public class JdbcUtil {
+
+    public static Connection getConnection(Properties properties) throws Exception {
+        Class.forName((String) properties.get(DRIVER));
+        String url = (String) properties.get(URL);
+        String user = (String) properties.get(USER);
+        String password = (String) properties.get(PASSWORD);
+        return DriverManager.getConnection(url, user, password);
+    }
 
     public static void parseColumns(ResultSet res, List<ColumnMeta> columns, Set<String> classes) {
         try {

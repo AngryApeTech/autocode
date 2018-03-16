@@ -6,12 +6,14 @@ import com.ape.autocode.util.CommonUtils;
 import com.ape.autocode.util.db.JdbcUtil;
 import com.ape.autocode.util.freemarker.FreeMarkerTemplateUtils;
 import freemarker.template.Template;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -20,58 +22,87 @@ import java.util.*;
  */
 public class CodeGenerator {
 
-    private final String AUTHOR = "AngryApe";
-    private final String CURRENT_DATE = "2017/05/03";
-    private final String packageName = "com.test";
-    private final String URL = "jdbc:mysql://10.1.170.160/assetaccount2.2?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true";
-    private final String USER = "cms";
-    private final String PASSWORD = "Cms123";
-    private final String DRIVER = "com.mysql.jdbc.Driver";
-    private final String diskPath = "D://test/";
-    private final String deleteColumn = "disabled";
-    private final String packagePath = packageName.replace(".", "/").concat("/");
+    private final static Logger logger = LoggerFactory.getLogger(CodeGenerator.class);
 
-    public Connection getConnection() throws Exception {
-        Class.forName(DRIVER);
-        Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        return connection;
+    private String author;
+    private String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+    private String packageName;
+    private String filePath;
+    private String deleteColumn;
+    private String packagePath;
+    private String tablePattern;
+
+    private Properties conf;
+
+    private boolean initConfig = false;
+
+    public CodeGenerator() {
+    }
+
+    public CodeGenerator(Properties properties) {
+        config(properties);
+    }
+
+    public void config(Properties properties) {
+        if (properties == null || properties.size() <= 0) {
+            logger.error("No configuration for generator environment.");
+            return;
+        }
+        this.author = (String) properties.get("author");
+        this.packageName = (String) properties.get("package.name");
+        if (CommonUtils.isEmpty(packageName)) {
+            logger.error("Can not get property [package.name] for CodeGenerator.");
+            System.exit(1);
+        }
+        this.filePath = (String) properties.get("file.path");
+        if (CommonUtils.isEmpty(packageName)) {
+            logger.warn("Can not get property [file.path] for CodeGenerator.");
+            System.exit(1);
+        }
+        this.deleteColumn = (String) properties.get("column.delete");
+        if (CommonUtils.isEmpty(packageName)) {
+            logger.warn("Can not get property [table.pattern] for CodeGenerator.");
+            System.exit(1);
+        }
+        this.tablePattern = (String) properties.get("table.pattern");
+        if (CommonUtils.isEmpty(packageName)) {
+            logger.warn("Can not get property [table.pattern] for CodeGenerator.");
+            System.exit(1);
+        }
+        packagePath = packageName.replace(".", "/").concat("/");
+        initConfig = true;
+        conf = properties;
     }
 
     public static void main(String[] args) throws Exception {
-        CodeGenerator codeGenerator = new CodeGenerator();
-        codeGenerator.generateDb();
+
     }
 
-    public void generateDb() throws Exception {
-        Connection connection = getConnection();
+    public void generate() throws Exception {
+        if (!initConfig) {
+            return;
+        }
+        Connection connection = JdbcUtil.getConnection(conf);
         DatabaseMetaData databaseMetaData = connection.getMetaData();
         String[] types = {"TABLE"};
-        ResultSet resultSet = databaseMetaData.getTables(null, null, "t_busi%", types);
+        ResultSet resultSet = databaseMetaData.getTables(null, null, tablePattern, types);
         List<TableMeta> tables = JdbcUtil.parseTables(resultSet);
-        System.out.println("Ready to generate file for total " + tables.size() + " tables. \n");
+        logger.info("Ready to generate file for total {} tables. \n", tables.size());
         tables.forEach(t -> {
             try {
-                System.out.println("Start to generate files for table: " + t.getTableName());
-                System.out.println(t);
-                generate(databaseMetaData, t.getTableName(), t.getEntityName(),
+                logger.info("Start to generate files for table: {}", t.getTableName());
+                generateFiles(databaseMetaData, t.getTableName(), t.getEntityName(),
                         t.getTableComment());
-                System.out.println("Successfully generate files for table: " + t.getTableName());
+                logger.info("Successfully generate files for table: {} \n", t.getTableName());
             } catch (Exception e) {
-                System.out.println("Failed to generate files for table: " + t.getTableName());
-                e.printStackTrace();
+                logger.error("Failed to generate files for table: {}, error: \n{}\n",
+                        t.getTableName(), e.getMessage());
             }
         });
+        connection.close();
     }
 
-    public void generateTable(String tableName, String comment) throws Exception {
-        Connection connection = getConnection();
-        DatabaseMetaData databaseMetaData = connection.getMetaData();
-        String entityName = JdbcUtil
-                .parseCamelName(tableName.substring(tableName.indexOf('_', 2) + 1));
-        generate(databaseMetaData, tableName, entityName, comment);
-    }
-
-    public void generate(DatabaseMetaData metaData, String tableName, String entityName,
+    private void generateFiles(DatabaseMetaData metaData, String tableName, String entityName,
             String comment) throws Exception {
         try {
             ResultSet resultSet = metaData.getColumns(null, "%", tableName, "%");
@@ -93,8 +124,8 @@ public class CodeGenerator {
             dataMap.put("keyField", JdbcUtil.parseColumnName(key));
             dataMap.put("deleteColumn", deleteColumn);
             dataMap.put("tableComment", comment);
-            dataMap.put("author", AUTHOR);
-            dataMap.put("date", CURRENT_DATE);
+            dataMap.put("author", author);
+            dataMap.put("date", currentDate);
             //生成Entity文件
             generateEntityFile(dataMap);
             //生成Mapper文件
@@ -104,12 +135,10 @@ public class CodeGenerator {
             //生成服务实现层文件
             generateServiceImplFile(dataMap);
             //生成Dao文件
-            //            generateDaoFile(dataMap);
+            generateDaoFile(dataMap);
             resultSet.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
-        } finally {
-
         }
     }
 
@@ -162,7 +191,7 @@ public class CodeGenerator {
 
     private void generateFileByTemplate(final String templateName, String pathSuffix,
             String fileSuffix, Map<String, Object> dataMap) throws Exception {
-        final String path = diskPath + packagePath + pathSuffix + "/";
+        final String path = filePath + packagePath + pathSuffix + "/";
         File pkgPath = new File(path);
         if (!pkgPath.exists()) {
             pkgPath.mkdirs();
