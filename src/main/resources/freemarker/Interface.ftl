@@ -1,24 +1,65 @@
 package ${package_name}.service;
-import com.evada.inno.core.service.IBaseService;
-import ${package_name}.model.${table_name};
-import ${package_name}.dto.${table_name}DTO;
+
+import com.ioe.common.domain.DataResult;
+import com.ioe.common.domain.ListResult;
+import com.ioe.common.domain.PageResult;
+import ${package + '.entity.' + entityName};
+import java.util.List;
+import java.util.Map;
+
 /**
-* 描述：${table_annotation} 服务实现层接口
+* 描述：${tableComment} 服务实现层接口
 * @author ${author}
 * @date ${date}
 */
-public interface I${table_name}Service extends IBaseService<${table_name},String> {
+public interface ${entityName}Service {
 
     /**
-    * 描述：根据Id获取DTO
-    * @param id
+    * 单个保存
     */
-${table_name}DTO findDTOById(String id)throws Exception;
+     DataResult${'<String>'}save${entityName}(
+<#if columns??>
+    <#list columns as column>
+        <#if column.columnName != keyName>
+            <#if column?is_last>
+                ${column.javaType?split(".")?last} ${column.fieldName}
+            <#else >
+                ${column.javaType?split(".")?last} ${column.fieldName},
+            </#if>
+        </#if>
+    </#list>
+</#if>
+    );
 
-${table_name}DTO create${table_name}(${table_name}DTO ${table_name?uncap_first}DTO) throws Exception;
+    /**
+    * 批量保存
+    */
+    DataResult${'<Boolean>'} save${entityName}Batch(String ${entityName?uncap_first}Json);
 
-    void delete${table_name}(String id) throws Exception;
+    /**
+    * 根据Code获取对象
+    */
+    DataResult<${entityName}> get${EntityName}ByCode(String code);
 
-${table_name}DTO update${table_name}(${table_name}DTO ${table_name?uncap_first}DTO) throws Exception;
+    /**
+    * 更新对象
+    */
+    DataResultt${'<Boolean>'} update${entityName}(
+<#if columns??>
+    <#list columns as column>
+        <#if column.columnName != keyName>
+            <#if column?is_last>
+                ${column.javaType?split(".")?last} ${column.fieldName}
+            <#else >
+                ${column.javaType?split(".")?last} ${column.fieldName},
+            </#if>
+        </#if>
+    </#list>
+</#if>
+    );
 
+    /**
+    * 根据code删除对象
+    */
+    DataResultt${'<Boolean>'} delete${entityName}ByCode(String code);
 }
