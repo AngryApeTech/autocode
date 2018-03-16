@@ -1,4 +1,4 @@
-package ${package_name}.service;
+package ${package}.service;
 
 import com.ioe.common.domain.DataResult;
 import com.ioe.common.domain.ListResult;
@@ -39,12 +39,12 @@ public interface ${entityName}Service {
     /**
     * 根据Code获取对象
     */
-    DataResult<${entityName}> get${EntityName}ByCode(String code);
+    DataResult<${entityName}> get${entityName}ByCode(String code);
 
     /**
     * 更新对象
     */
-    DataResultt${'<Boolean>'} update${entityName}(
+    DataResult${'<Boolean>'} update${entityName}(
 <#if columns??>
     <#list columns as column>
         <#if column.columnName != keyName>
@@ -61,5 +61,5 @@ public interface ${entityName}Service {
     /**
     * 根据code删除对象
     */
-    DataResultt${'<Boolean>'} delete${entityName}ByCode(String code);
+    DataResult${'<Boolean>'} delete${entityName}ByCode(String code);
 }

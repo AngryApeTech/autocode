@@ -6,4 +6,51 @@ package com.ape.autocode.entity;
  */
 public class TableMeta {
 
+    /**
+     * 表名
+     */
+    private String tableName;
+
+    private String entityName;
+
+    private String tableComment;
+
+    public TableMeta() {
+    }
+
+    public TableMeta(String tableName, String entityName, String tableComment) {
+        this.tableName = tableName;
+        this.entityName = entityName;
+        this.tableComment = tableComment;
+    }
+
+    public String getTableComment() {
+        return tableComment;
+    }
+
+    public void setTableComment(String tableComment) {
+        this.tableComment = tableComment;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
+    public String getEntityName() {
+        return entityName;
+    }
+
+    public void setEntityName(String entityName) {
+        this.entityName = entityName;
+    }
+
+    @Override
+    public String toString() {
+        return "TableMeta{" + "tableName='" + tableName + '\'' + ", entityName='" + entityName
+                + '\'' + ", tableComment='" + tableComment + '\'' + '}';
+    }
 }

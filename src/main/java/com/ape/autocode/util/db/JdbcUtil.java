@@ -1,10 +1,12 @@
 package com.ape.autocode.util.db;
 
 import com.ape.autocode.entity.ColumnMeta;
+import com.ape.autocode.entity.TableMeta;
 import org.springframework.util.StringUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -24,12 +26,27 @@ public class JdbcUtil {
                         parseColumnName(columnName), remarks, jdbc2JavaType(dataType));
                 columns.add(column);
                 //                res.getMetaData().getColumnClassName()
-                System.out.println(column);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
 
+    public static List<TableMeta> parseTables(ResultSet res) {
+        List<TableMeta> tableMetas = new ArrayList<>();
+        try {
+            while (res.next()) {
+                String tableName = res.getString("TABLE_NAME");
+                String remarks = res.getString("REMARKS").replace("\r\n", "\t");
+                String entityName = JdbcUtil
+                        .parseCamelName(tableName.substring(tableName.indexOf('_', 2) + 1));
+                TableMeta table = new TableMeta(tableName, entityName, remarks);
+                tableMetas.add(table);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return tableMetas;
     }
 
     public static String jdbc2JavaType(String jdbcType) {
