@@ -90,7 +90,7 @@
     ${'<!-- delete entity by key -->'}
     <update id="deleteByKey">
         update <include refid="tableName"/>
-        set ${deleteColumn}=1 where ${deleteColumn}=0 and ${keyName}=${r'#{key}'}
+        set ${deleteColumn}=${deleteValue} where ${deleteColumn}=0 and ${keyName}=${r'#{key}'}
     </update>
 
 </mapper>

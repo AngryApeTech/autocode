@@ -29,6 +29,8 @@ public class CodeGenerator {
     private String packageName;
     private String filePath;
     private String deleteColumn;
+    private String deleteValue;
+    private Set<String> sysColumns;
     private String packagePath;
     private String tablePattern;
 
@@ -55,15 +57,26 @@ public class CodeGenerator {
             System.exit(1);
         }
         this.filePath = (String) properties.get("file.path");
-        if (CommonUtils.isEmpty(packageName)) {
+        if (CommonUtils.isEmpty(filePath)) {
             logger.warn("Can not get property [file.path] for CodeGenerator.");
             System.exit(1);
         }
         this.deleteColumn = (String) properties.get("column.delete");
-        if (CommonUtils.isEmpty(packageName)) {
+        if (CommonUtils.isEmpty(deleteColumn)) {
             logger.warn("Can not get property [table.pattern] for CodeGenerator.");
             System.exit(1);
         }
+        this.deleteValue = (String) properties.get("column.delete.value");
+        if (CommonUtils.isEmpty(deleteValue)) {
+            logger.warn("Can not get property [column.delete.value] for CodeGenerator.");
+            System.exit(1);
+        }
+        String columnsDefault = (String) properties.get("columns.sys");
+        if (CommonUtils.isEmpty(columnsDefault)) {
+            logger.warn("Can not get property [columns.sys] for CodeGenerator.");
+            System.exit(1);
+        }
+        this.sysColumns = new HashSet<>(Arrays.asList(columnsDefault.split(",")));
         this.tablePattern = (String) properties.get("table.pattern");
         if (CommonUtils.isEmpty(packageName)) {
             logger.warn("Can not get property [table.pattern] for CodeGenerator.");
@@ -123,6 +136,8 @@ public class CodeGenerator {
             dataMap.put("keyName", key);
             dataMap.put("keyField", JdbcUtil.parseColumnName(key));
             dataMap.put("deleteColumn", deleteColumn);
+            dataMap.put("deleteValue", deleteValue);
+            dataMap.put("sysColumns", sysColumns);
             dataMap.put("tableComment", comment);
             dataMap.put("author", author);
             dataMap.put("date", currentDate);
