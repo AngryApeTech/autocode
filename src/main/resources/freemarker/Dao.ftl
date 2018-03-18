@@ -16,9 +16,11 @@ public interface ${entityName}Dao {
 
     int saveBatch(@Param("entities")List<${entityName}> entities);
 
+<#if keys??>
     int update(@Param("entity")${entityName} entity);
+</#if>
 
-<#--为联合主键的每个字段生成单独的查询方法-->
+<#--为每个主键生成查询方法-->
 <#if keys??>
     <#list keys as key>
     List<${entityName}> getBy${key.fieldName?cap_first} (@Param("${key.fieldName}")String ${key.fieldName}, @Param("availData")int availData);
@@ -28,7 +30,7 @@ public interface ${entityName}Dao {
     </#list>
 </#if>
 
-<#--为联合主键的所有字段生成查询方法-->
+<#--为联合主键生成查询方法-->
 <#if keys??>
     <#--如果只有一列则不执行-->
     <#if (keys?size>1)>
@@ -49,4 +51,29 @@ public interface ${entityName}Dao {
     </#if>
 </#if>
 
+<#--根据索引生成查询方法-->
+<#if indexes??>
+    <#list indexes as index>
+        <#if index.columns??>
+            <#assign params='' paramNames='' fieldComments='' methodName=''/>
+            <#list index.columns as col>
+                <#if col?is_last>
+                    <#assign params=params+col.javaType+' '+col.fieldName/>
+                    <#assign paramNames=paramNames+col.fieldName/>
+                    <#assign methodName=methodName+col.fieldName?cap_first/>
+                <#else>
+                    <#assign params=params+col.javaType+' '+col.fieldName+', '/>
+                    <#assign paramNames=paramNames+col.fieldName+', '/>
+                    <#assign methodName=methodName+col.fieldName?cap_first+'And'/>
+                </#if>
+                <#assign fieldComments=fieldComments+'* @param '+col.fieldName+' '+col.comment+'\n\t'/>
+            </#list>
+        </#if>
+    /**
+    * index:${index.tableName +' ==> '+ index.name}
+    */
+    List<${entityName}> getBy${methodName} (${params}, @Param("availData")int availData);
+
+    </#list>
+</#if>
 }

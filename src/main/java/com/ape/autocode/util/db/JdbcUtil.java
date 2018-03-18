@@ -121,6 +121,8 @@ public class JdbcUtil {
         try {
             while (res.next()) {
                 String indexName = res.getString("INDEX_NAME"); //索引名称
+                if(indexName.equals("PRIMARY"))
+                    continue;
                 String columnName = res.getString("COLUMN_NAME"); //列名
                 String ordinal = res.getString("ORDINAL_POSITION"); //列序号
                 CommonUtils.addMapList(indexMap, indexName, ordinal + ":" + columnName);

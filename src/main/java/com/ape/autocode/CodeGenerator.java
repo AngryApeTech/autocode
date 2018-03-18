@@ -1,6 +1,7 @@
 package com.ape.autocode;
 
 import com.ape.autocode.entity.ColumnMeta;
+import com.ape.autocode.entity.IndexMeta;
 import com.ape.autocode.entity.TableMeta;
 import com.ape.autocode.util.CommonUtils;
 import com.ape.autocode.util.db.JdbcUtil;
@@ -127,20 +128,35 @@ public class CodeGenerator {
         connection.close();
     }
 
+    /**
+     *
+     * @param metaData
+     * @param tableName
+     * @param entityName
+     * @param comment
+     * @throws Exception
+     */
     private void generateFiles(DatabaseMetaData metaData, String tableName, String entityName,
                                String comment) throws Exception {
         try {
             //获取字段信息
             ResultSet resultSet = metaData.getColumns(null, "%", tableName, "%");
             List<ColumnMeta> columns = JdbcUtil.parseColumns(resultSet);
-            columns.forEach(System.out::println);
+            resultSet.close();
+//            columns.forEach(System.out::println);
+
             //获取主键信息
             resultSet = metaData.getPrimaryKeys(null, null, tableName);
             List<ColumnMeta> keys = JdbcUtil.parseKeys(resultSet, columns);
+            resultSet.close();
+//            if (CommonUtils.isEmpty(keys)) {
+//                throw new Exception("No primary key of table: " + tableName);
+//            }
+
             //TODO:获取索引信息
-            if (CommonUtils.isEmpty(keys)) {
-                throw new Exception("No primary key of table: " + tableName);
-            }
+            resultSet = metaData.getIndexInfo(null, null, tableName, false, false);
+            List<IndexMeta> indexes = JdbcUtil.parseIndexes(tableName, resultSet, columns);
+            indexes.forEach(System.out::println);
             // 构造 freemarker 变量
             Map<String, Object> dataMap = new HashMap<>();
             dataMap.put("package", packageName);    //文件包名
@@ -148,6 +164,7 @@ public class CodeGenerator {
             dataMap.put("tableName", tableName);    //表名
             dataMap.put("entityName", entityName);  //表对应的Entity名称
             dataMap.put("keys", keys);              //（联合）主键
+            dataMap.put("indexes", indexes);              //（联合）主键
             dataMap.put("deleteColumn", deleteColumn);  //
             dataMap.put("deleteValue", deleteValue);    //
             dataMap.put("sysColumns", sysColumns);  //

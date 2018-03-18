@@ -43,7 +43,7 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
     <#list columns as column>
         <#if !isColumnInKeys(column.columnName, keys)>
             <#assign index = index+1/>
-            <#if index==(columns?size-keys?size)>
+            <#if index==(columns?size-keys?size!0)>
                 ${column.javaType?split(".")?last} ${column.fieldName}
             <#else >
                 ${column.javaType?split(".")?last} ${column.fieldName},
@@ -60,7 +60,7 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
         }
         try{
             // TODO : 前置代码
-${entityName} ${entityName?uncap_first} = new ${entityName}();
+            ${entityName} ${entityName?uncap_first} = new ${entityName}();
 <#if columns??>
     <#list columns as column>
         <#if !isColumnInKeys(column.columnName, keys)>
@@ -103,7 +103,7 @@ ${entityName} ${entityName?uncap_first} = new ${entityName}();
             }
 
             // TODO : 前置代码
-${entityName?uncap_first}Dao.saveBatch(${entityName?uncap_first}List);
+            ${entityName?uncap_first}Dao.saveBatch(${entityName?uncap_first}List);
             result.setData(True);
 
             // TODO : 后置代码
@@ -116,6 +116,7 @@ ${entityName?uncap_first}Dao.saveBatch(${entityName?uncap_first}List);
         return result;
     }
 
+<#--为每个主键生成查询方法-->
 <#if keys??>
     <#list keys as key>
     /**
@@ -136,7 +137,7 @@ ${entityName?uncap_first}Dao.saveBatch(${entityName?uncap_first}List);
         }
         try{
             // TODO : 前置代码
-            List<${entityName}> ${entityName?uncap_first}List = ${entityName?uncap_first}Dao.getByKey(${key.fieldName}, availData);
+            List<${entityName}> ${entityName?uncap_first}List = ${entityName?uncap_first}Dao.getBy${key.fieldName?cap_first}(${key.fieldName}, availData);
             // TODO : 后置代码
             if(CommonUtils.isNotEmpty(${entityName?uncap_first}List)){
                 result.setDataList(${entityName?uncap_first}List);
@@ -183,6 +184,7 @@ ${entityName?uncap_first}Dao.saveBatch(${entityName?uncap_first}List);
     </#list>
 </#if>
 
+<#--为联合主键生成查询方法-->
 <#if keys??>
 <#--如果只有一列则不执行-->
     <#if (keys?size>1)>
@@ -259,6 +261,8 @@ ${entityName?uncap_first}Dao.saveBatch(${entityName?uncap_first}List);
     </#if>
 </#if>
 
+<#--生成更新方法-->
+<#if keys??>
     /**
     * 更新对象
     */
@@ -299,5 +303,56 @@ ${entityName?uncap_first}Dao.saveBatch(${entityName?uncap_first}List);
         }
         return result;
     }
+</#if>
 
+<#--根据索引生成查询方法-->
+<#if indexes??>
+    <#list indexes as index>
+        <#if index.columns??>
+            <#assign params='' paramNames='' fieldComments='' methodName=''/>
+            <#list index.columns as col>
+                <#if col?is_last>
+                    <#assign params=params+col.javaType+' '+col.fieldName/>
+                    <#assign paramNames=paramNames+col.fieldName/>
+                    <#assign methodName=methodName+col.fieldName?cap_first/>
+                <#else>
+                    <#assign params=params+col.javaType+' '+col.fieldName+', '/>
+                    <#assign paramNames=paramNames+col.fieldName+', '/>
+                    <#assign methodName=methodName+col.fieldName?cap_first+'And'/>
+                </#if>
+                <#assign fieldComments=fieldComments+'* @param '+col.fieldName+' '+col.comment+'\n\t'/>
+            </#list>
+        </#if>
+    /**
+    * 根据${paramNames}查询记录
+    *
+    ${fieldComments}
+    */
+    @Override
+    @Stat
+    public ListResult<${entityName}> get${entityName}By${methodName} (${params}, int availData){
+        ListResult<${entityName}> result = new ListResult();
+        //TODO:数据校验
+        //if(){
+        //    result.setCode("1");
+        //    result.setCode("1");
+        //    return result;
+        //}
+        try{
+            // TODO : 前置代码
+            List<${entityName}> ${entityName?uncap_first}List = ${entityName?uncap_first}Dao.getBy${methodName}(${paramNames}, availData);
+            // TODO : 后置代码
+            if(CommonUtils.isNotEmpty(${entityName?uncap_first}List)){
+                result.setDataList(${entityName?uncap_first}List);
+            }
+        } catch (Exception e){
+            logger.error("get${entityName}By${methodName} error:{}", e.getMessage());
+            result.setCode("1");
+            result.setMessage("1");
+        }
+        return result;
+    }
+
+    </#list>
+</#if>
 }

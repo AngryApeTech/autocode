@@ -50,4 +50,13 @@ public class IndexMeta {
         }
         this.columns.add(column);
     }
+
+    @Override
+    public String toString() {
+        return "IndexMeta{" +
+                "name='" + name + '\'' +
+                ", tableName='" + tableName + '\'' +
+                ", columns=" + columns +
+                '}';
+    }
 }

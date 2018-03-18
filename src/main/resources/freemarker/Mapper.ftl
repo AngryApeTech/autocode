@@ -63,6 +63,7 @@
         </foreach>
     </insert>
 
+<#--为每个主键生成查询方法-->
 <#if keys??>
     <#list keys as key>
     ${'<!-- get entity by '+key.fieldName+' -->'}
@@ -82,6 +83,7 @@
     </#list>
 </#if>
 
+<#--为联合主键生成查询方法-->
 <#assign updateSql=''/>
 <#if keys??>
 <#--如果只有一列则不执行-->
@@ -116,6 +118,8 @@
     </#if>
 </#if>
 
+<#--生成更新方法-->
+<#if keys??>
 ${'<!-- update entity -->'}
     <update id="update" parameterType="${package}.entity.${entityName}">
         update
@@ -126,7 +130,7 @@ ${'<!-- update entity -->'}
             <#list columns as column>
                 <#if !isColumnInKeys(column.columnName, keys)>
                     <#assign index = index+1/>
-                    <#if index==(columns?size-keys?size)>
+                    <#if index==(columns?size-keys?size!0)>
             ${column.columnName} = ${r'#{entity'+'.'+column.fieldName+'}'}
                     <#else >
             ${column.columnName} = ${r'#{entity'+'.'+column.fieldName+'}'},
@@ -136,5 +140,31 @@ ${'<!-- update entity -->'}
         </#if>
         where ${updateSql} and ${deleteColumn}!=${deleteValue}
     </update>
+</#if>
 
+<#--根据索引生成查询方法-->
+<#if indexes??>
+    <#list indexes as index>
+        <#if index.columns??>
+            <#assign methodName=''/>
+            <#list index.columns as col>
+                <#if col?is_last>
+                    <#assign methodName=methodName+col.fieldName?cap_first/>
+                <#else>
+                    <#assign methodName=methodName+col.fieldName?cap_first+'And'/>
+                </#if>
+            </#list>
+    <select id="getBy${methodName}" resultMap="resultMap">
+        select <include refid="columns"/>
+        from <include refid="tableName"/>
+        where ${queryDefault}
+        <#list index.columns as col>
+        <if test="${col.fieldName}!=null">
+            and ${col.columnName}=${r'#{'+col.fieldName+'}'}
+        </if>
+        </#list>
+    </select>
+        </#if>
+    </#list>
+</#if>
 </mapper>
