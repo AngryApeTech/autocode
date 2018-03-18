@@ -4,7 +4,6 @@ import com.ape.autocode.entity.ColumnMeta;
 import com.ape.autocode.entity.IndexMeta;
 import com.ape.autocode.entity.TableMeta;
 import com.ape.autocode.util.CommonUtils;
-import com.sun.xml.internal.ws.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -121,7 +120,7 @@ public class JdbcUtil {
         try {
             while (res.next()) {
                 String indexName = res.getString("INDEX_NAME"); //索引名称
-                if(indexName.equals("PRIMARY"))
+                if (indexName.equals("PRIMARY"))
                     continue;
                 String columnName = res.getString("COLUMN_NAME"); //列名
                 String ordinal = res.getString("ORDINAL_POSITION"); //列序号
@@ -167,7 +166,7 @@ public class JdbcUtil {
             }
         }
         String result = sb.toString().replaceAll("_", "");
-        return StringUtils.capitalize(result);
+        return CommonUtils.capitalize(result);
     }
 
     /**
