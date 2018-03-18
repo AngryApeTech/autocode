@@ -71,7 +71,9 @@
         select <include refid="columns"/>
         from <include refid="tableName"/>
         where ${key.fieldName} = ${r'#{'+key.fieldName+'}'}
+        <#if queryDefault??>
         and ${queryDefault}
+        </#if>
     </select>
 
     <update id="deleteBy${key.fieldName?cap_first}">
@@ -105,7 +107,9 @@
         select <include refid="columns"/>
         from <include refid="tableName"/>
         where ${params}
+        <#if queryDefault??>
         and ${queryDefault}
+        </#if>
     </select>
 
     <update id="deleteBy${methodName}">
@@ -157,7 +161,10 @@ ${'<!-- update entity -->'}
     <select id="getBy${methodName}" resultMap="resultMap">
         select <include refid="columns"/>
         from <include refid="tableName"/>
-        where ${queryDefault}
+        where 1=1
+        <#if queryDefault??>
+        and ${queryDefault}
+        </#if>
         <#list index.columns as col>
         <if test="${col.fieldName}!=null">
             and ${col.columnName}=${r'#{'+col.fieldName+'}'}

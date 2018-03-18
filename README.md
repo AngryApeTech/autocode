@@ -17,26 +17,27 @@
     - 更新对象（没有主键时不生成）
     - 根据索引查找。为所有索引列生成一个查询方法
     
-# 参数列表
-|配置项|说明|
-|----|----|
-|author||
-|--数据库连接--||
-|jdbc.dialect||
-|jdbc.driver||
-|jdbc.url||
-|jdbc.user||
-|jdbc.password||
-|--表相关--||
-|table.pattern||
-|columns.sys||
-|column.updator||
-|column.delete||
-|column.delete.value||
-|query.default||
-|--输出相关--||
-|package.name||
-|file.path||
+# 配置项列表
+
+|配置项|默认|说明|
+|----|----|--|
+|author|AngryApe|作者|
+|--数据库连接--|-|-|
+|jdbc.dialect|-|暂时不生效|
+|jdbc.driver|-|-|
+|jdbc.url|-|-|
+|jdbc.user|-|-|
+|jdbc.password|-|-|
+|--表相关--|-|-|
+|table.pattern|-|-|
+|columns.sys|-|-|
+|column.updator|-|-|
+|column.delete|-|-|
+|column.delete.value|-|-|
+|query.default|-|-|
+|--输出相关--|-|-|
+|package.name|-|-|
+|file.path|-|D://|
 
 
 
