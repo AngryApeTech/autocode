@@ -12,6 +12,32 @@
 3. 目前生成的文件中，包含以下方法：
     - 单个保存
     - 批量保存
-    - 根据主键查找
-    - 更新对象（主键必须有值）
-    - 根据主键删除对象
+    - 根据主键查找。联合主键时，每个键分别生成一个查询方法，所有键生成一个，共生成n+1个查询
+    - 根据主键删除对象。规则同上，共生成n+1个删除方法
+    - 更新对象（没有主键时不生成）
+    - 根据索引查找。为所有索引列生成一个查询方法
+    
+# 参数列表
+|配置项|说明|
+|----|----|
+|author||
+|--数据库连接--||
+|jdbc.dialect||
+|jdbc.driver||
+|jdbc.url||
+|jdbc.user||
+|jdbc.password||
+|--表相关--||
+|table.pattern||
+|columns.sys||
+|column.updator||
+|column.delete||
+|column.delete.value||
+|query.default||
+|--输出相关--||
+|package.name||
+|file.path||
+
+
+
+    

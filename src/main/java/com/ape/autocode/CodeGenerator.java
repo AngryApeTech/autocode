@@ -49,6 +49,7 @@ public class CodeGenerator {
     }
 
     public void config(Properties properties) {
+//        properties.forEach((key, value) -> System.out.println(key));
         if (properties == null || properties.size() <= 0) {
             logger.error("No configuration for generator environment.");
             return;
