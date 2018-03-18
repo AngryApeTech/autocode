@@ -33,6 +33,8 @@ public class CodeGenerator {
     private Set<String> sysColumns;
     private String packagePath;
     private String tablePattern;
+    private String queryDefault;
+    private String updaterColumn;
 
     private Properties conf;
 
@@ -69,6 +71,16 @@ public class CodeGenerator {
         this.deleteValue = (String) properties.get("column.delete.value");
         if (CommonUtils.isEmpty(deleteValue)) {
             logger.warn("Can not get property [column.delete.value] for CodeGenerator.");
+            System.exit(1);
+        }
+        this.queryDefault = (String) properties.get("query.default");
+        if (CommonUtils.isEmpty(queryDefault)) {
+            logger.warn("Can not get property [query.default] for CodeGenerator.");
+            System.exit(1);
+        }
+        this.updaterColumn = (String) properties.get("column.updator");
+        if (CommonUtils.isEmpty(updaterColumn)) {
+            logger.warn("Can not get property [column.updator] for CodeGenerator.");
             System.exit(1);
         }
         String columnsDefault = (String) properties.get("columns.sys");
@@ -116,31 +128,35 @@ public class CodeGenerator {
     }
 
     private void generateFiles(DatabaseMetaData metaData, String tableName, String entityName,
-            String comment) throws Exception {
+                               String comment) throws Exception {
         try {
+            //获取字段信息
             ResultSet resultSet = metaData.getColumns(null, "%", tableName, "%");
-            List<ColumnMeta> columns = new ArrayList<>();
-            Set<String> classes = new HashSet<>();
-            JdbcUtil.parseColumns(resultSet, columns, classes);
+            List<ColumnMeta> columns = JdbcUtil.parseColumns(resultSet);
+            columns.forEach(System.out::println);
+            //获取主键信息
             resultSet = metaData.getPrimaryKeys(null, null, tableName);
-            String key = JdbcUtil.getKey(resultSet);
-            if (CommonUtils.isEmpty(key)) {
+            List<ColumnMeta> keys = JdbcUtil.parseKeys(resultSet, columns);
+            //TODO:获取索引信息
+            if (CommonUtils.isEmpty(keys)) {
                 throw new Exception("No primary key of table: " + tableName);
             }
             // 构造 freemarker 变量
             Map<String, Object> dataMap = new HashMap<>();
-            dataMap.put("package", packageName);
-            dataMap.put("columns", columns);
-            dataMap.put("tableName", tableName);
-            dataMap.put("entityName", entityName);
-            dataMap.put("keyName", key);
-            dataMap.put("keyField", JdbcUtil.parseColumnName(key));
-            dataMap.put("deleteColumn", deleteColumn);
-            dataMap.put("deleteValue", deleteValue);
-            dataMap.put("sysColumns", sysColumns);
-            dataMap.put("tableComment", comment);
-            dataMap.put("author", author);
-            dataMap.put("date", currentDate);
+            dataMap.put("package", packageName);    //文件包名
+            dataMap.put("columns", columns);        //数据库所有字段信息
+            dataMap.put("tableName", tableName);    //表名
+            dataMap.put("entityName", entityName);  //表对应的Entity名称
+            dataMap.put("keys", keys);              //（联合）主键
+            dataMap.put("deleteColumn", deleteColumn);  //
+            dataMap.put("deleteValue", deleteValue);    //
+            dataMap.put("sysColumns", sysColumns);  //
+            dataMap.put("tableComment", comment);   //
+            dataMap.put("author", author);          //
+            dataMap.put("date", currentDate);       //
+            dataMap.put("queryDefault", queryDefault);       //
+            dataMap.put("updaterColumn", updaterColumn);       //
+            dataMap.put("updaterField", JdbcUtil.parseCamelNameInitLower(updaterColumn));       //
             //生成Entity文件
             generateEntityFile(dataMap);
             //生成Mapper文件
@@ -205,7 +221,7 @@ public class CodeGenerator {
     }
 
     private void generateFileByTemplate(final String templateName, String pathSuffix,
-            String fileSuffix, Map<String, Object> dataMap) throws Exception {
+                                        String fileSuffix, Map<String, Object> dataMap) throws Exception {
         final String path = filePath + packagePath + pathSuffix + "/";
         File pkgPath = new File(path);
         if (!pkgPath.exists()) {

@@ -18,6 +18,8 @@ public class ColumnMeta {
      * 数据库字段首字母小写且去掉下划线字符串
      **/
     private String fieldName;
+
+    private String defaultVal;
     /**
      * 数据库字段注释
      **/
@@ -29,12 +31,21 @@ public class ColumnMeta {
     }
 
     public ColumnMeta(String columnName, String jdbcType, String fieldName,
-            String comment,String javaType) {
+            String comment,String javaType,String defaultVal) {
         this.columnName = columnName;
         this.jdbcType = jdbcType;
         this.fieldName = fieldName;
         this.comment = comment;
         this.javaType = javaType;
+        this.defaultVal = defaultVal;
+    }
+
+    public String getDefaultVal() {
+        return defaultVal;
+    }
+
+    public void setDefaultVal(String defaultVal) {
+        this.defaultVal = defaultVal;
     }
 
     public String getComment() {
@@ -79,8 +90,13 @@ public class ColumnMeta {
 
     @Override
     public String toString() {
-        return "ColumnMeta{" + "columnName='" + columnName + '\'' + ", jdbcType='" + jdbcType + '\''
-                + ", fieldName='" + fieldName + '\'' + ", comment='" + comment + '\''
-                + ", javaType='" + javaType + '\'' + '}';
+        return "ColumnMeta{" +
+                "columnName='" + columnName + '\'' +
+                ", jdbcType='" + jdbcType + '\'' +
+                ", fieldName='" + fieldName + '\'' +
+                ", defaultVal='" + defaultVal + '\'' +
+                ", comment='" + comment + '\'' +
+                ", javaType='" + javaType + '\'' +
+                '}';
     }
 }

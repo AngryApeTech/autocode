@@ -1,3 +1,4 @@
+<#include 'function.ftl'/>
 package ${package}.service;
 
 import com.ioe.common.domain.DataResult;
@@ -19,9 +20,11 @@ public interface ${entityName}Service {
     */
      DataResult${'<String>'}save${entityName}(
 <#if columns??>
+    <#assign index = 0/>
     <#list columns as column>
-        <#if column.columnName != keyName>
-            <#if column?is_last>
+        <#if !isColumnInKeys(column.columnName, keys)>
+            <#assign index = index+1/>
+            <#if index==(columns?size-keys?size)>
                 ${column.javaType?split(".")?last} ${column.fieldName}
             <#else >
                 ${column.javaType?split(".")?last} ${column.fieldName},
@@ -36,10 +39,50 @@ public interface ${entityName}Service {
     */
     DataResult${'<Boolean>'} save${entityName}Batch(String ${entityName?uncap_first}Json);
 
+<#if keys??>
+    <#list keys as key>
     /**
-    * 根据Code获取对象
+    * 根据${key.fieldName}获取对象
     */
-    DataResult<${entityName}> get${entityName}ByCode(String code);
+    ListResult<${entityName}> get${entityName}By${key.fieldName} (${key.javaType} ${key.fieldName}, int availData);
+
+    /**
+    * 根据${key.fieldName}删除对象
+    */
+    DataResult${'<Integer>'} delete${entityName}By${key.fieldName}(${key.javaType} ${key.fieldName}, String operator);
+
+    </#list>
+</#if>
+
+<#if keys??>
+<#--如果只有一列则不执行-->
+    <#if (keys?size>1)>
+        <#assign methodName=''/>
+        <#assign params=''/>
+        <#assign paramNames=''/>
+        <#list keys as key>
+            <#if key?is_last>
+                <#assign methodName = methodName + key.fieldName?cap_first />
+                <#assign params = params + key.javaType+' '+key.fieldName/>
+                <#assign paramNames = params + key.fieldName/>
+            <#else>
+                <#assign methodName = methodName + key.fieldName?cap_first + 'And' />
+                <#assign params = params + key.javaType+' '+key.fieldName + ', ' />
+                <#assign paramNames = params + key.fieldName + ', ' />
+            </#if>
+        </#list>
+    /**
+    * 根据${paramNames}获取对象
+    */
+    DataResult<${entityName}> get${entityName}By${methodName} (${params}, int availData);
+
+    /**
+    * 根据${paramNames}删除对象
+    */
+    DataResult${'<Integer>'} delete${entityName}By${methodName}(${params}, String operator);
+
+    </#if>
+</#if>
 
     /**
     * 更新对象
@@ -47,19 +90,9 @@ public interface ${entityName}Service {
     DataResult${'<Boolean>'} update${entityName}(
 <#if columns??>
     <#list columns as column>
-        <#if column.columnName != keyName>
-            <#if column?is_last>
-                ${column.javaType?split(".")?last} ${column.fieldName}
-            <#else >
                 ${column.javaType?split(".")?last} ${column.fieldName},
-            </#if>
-        </#if>
     </#list>
 </#if>
+                String operator
     );
-
-    /**
-    * 根据code删除对象
-    */
-    DataResult${'<Boolean>'} delete${entityName}ByCode(String code);
 }

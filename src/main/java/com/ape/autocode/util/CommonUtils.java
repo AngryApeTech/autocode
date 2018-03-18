@@ -75,6 +75,14 @@ public class CommonUtils {
         return collection != null && !collection.isEmpty();
     }
 
+    public static boolean isEmpty(Map map){
+        return map==null || map.isEmpty();
+    }
+
+    public static boolean isNotEmpty(Map map){
+        return map!=null && !map.isEmpty();
+    }
+
     public static <T> List<T> arrayListNullToEmpty(List<T> collection) {
         return isEmpty(collection) ? new ArrayList<T>() : collection;
     }

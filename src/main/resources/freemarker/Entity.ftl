@@ -17,6 +17,7 @@ public class ${entityName} extends BaseEntity {
     *${column.comment!}
     */
     private ${column.javaType?split(".")?last} ${column.fieldName?uncap_first};
+
         </#if>
     </#list>
 </#if>

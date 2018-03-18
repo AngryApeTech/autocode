@@ -11,8 +11,14 @@ public class TableMeta {
      */
     private String tableName;
 
+    /**
+     * 对应Entity名称
+     */
     private String entityName;
 
+    /**
+     * 表注释
+     */
     private String tableComment;
 
     public TableMeta() {

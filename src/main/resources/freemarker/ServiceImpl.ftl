@@ -1,3 +1,4 @@
+<#include 'function.ftl'/>
 package ${package}.service.impl;
 
 import org.springframework.stereotype.Service;
@@ -15,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSONObject;
 
 import ${package + '.entity.' + entityName};
-import ${package + '.service.' + entityName}}
+import ${package + '.service.' + entityName};
 
 /**
 * 描述：${tableComment}
@@ -38,9 +39,11 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
     @Transactional(rollbackFor = Exception.class)
     DataResult${'<String>'} save${entityName}(
 <#if columns??>
+    <#assign index = 0/>
     <#list columns as column>
-        <#if column.columnName != keyName>
-            <#if column?is_last>
+        <#if !isColumnInKeys(column.columnName, keys)>
+            <#assign index = index+1/>
+            <#if index==(columns?size-keys?size)>
                 ${column.javaType?split(".")?last} ${column.fieldName}
             <#else >
                 ${column.javaType?split(".")?last} ${column.fieldName},
@@ -57,17 +60,17 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
         }
         try{
             // TODO : 前置代码
-            ${entityName} ${entityName?uncap_first} = new ${entityName}();
+${entityName} ${entityName?uncap_first} = new ${entityName}();
 <#if columns??>
     <#list columns as column>
-        <#if column.columnName != keyName>
+        <#if !isColumnInKeys(column.columnName, keys)>
             ${entityName?uncap_first}.set${column.fieldName?cap_first}(${column.fieldName});
         <#else >
             ${entityName?uncap_first}.set${column.fieldName?cap_first}(CoderGenerator.getDeviceCode(NewCodeUtil.nodeId()));
         </#if>
     </#list>
 </#if>
-            ${entityName?uncap_first}Dao.save()
+            ${entityName?uncap_first}Dao.save(${entityName?uncap_first});
             // TODO : 后置代码
         } catch (Exception e){
             logger.error("save${entityName} error:{}", e.getMessage());
@@ -100,7 +103,7 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
             }
 
             // TODO : 前置代码
-            ${entityName?uncap_first}Dao.saveBatch(${entityName?uncap_first}List);
+${entityName?uncap_first}Dao.saveBatch(${entityName?uncap_first}List);
             result.setData(True);
 
             // TODO : 后置代码
@@ -113,33 +116,148 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
         return result;
     }
 
+<#if keys??>
+    <#list keys as key>
     /**
-    * 根据Code获取对象
+    * 根据${key.fieldName}获取对象
     */
     @Override
     @Stat
-    DataResult<${entityName}> get${entityName}ByCode (String code){
-        DataResult<${entityName}> result = new DataResult();
-        if(CommonUtils.isEmpty(code)){
+    public ListResult<${entityName}> get${entityName}By${key.fieldName} (${key.javaType} ${key.fieldName}, int availData){
+        ListResult<${entityName}> result = new ListResult();
+        <#if key.javaType=="String">
+        if(CommonUtils.isEmpty(${key.fieldName})){
+        <#else>
+        if(${key.fieldName} == null){
+        </#if>
             result.setCode("1");
             result.setCode("1");
             return result;
         }
         try{
             // TODO : 前置代码
-            ${entityName} ${entityName?uncap_first} = ${entityName?uncap_first}Dao.getByKey(code);
+            List<${entityName}> ${entityName?uncap_first}List = ${entityName?uncap_first}Dao.getByKey(${key.fieldName}, availData);
             // TODO : 后置代码
-            if(${entityName?uncap_first} != null){
-                result.setData(${entityName?uncap_first});
+            if(CommonUtils.isNotEmpty(${entityName?uncap_first}List)){
+                result.setDataList(${entityName?uncap_first}List);
             }
         } catch (Exception e){
-            logger.error("save${entityName}ByCode error:{}", e.getMessage());
+            logger.error("save${entityName}By${key.fieldName} error:{}", e.getMessage());
+            result.setCode("1");
+            result.setMessage("1");
+        }
+        return result;
+    }
+
+    /**
+    * 根据${key.fieldName}删除对象
+    */
+    @Override
+    @Stat
+    @Transactional(rollbackFor = Exception.class)
+    public DataResult${'<Integer>'} delete${entityName}By${key.fieldName}(${key.javaType} ${key.fieldName}, String operator){
+        DataResult${'<Integer>'} result = new DataResult();
+        <#if key.javaType=="String">
+        if(CommonUtils.isEmpty(${key.fieldName})){
+        <#else>
+        if(${key.fieldName} == null){
+        </#if>
+            result.setCode("1");
+            result.setCode("1");
+            return result;
+        }
+        try{
+            // TODO : 前置代码
+        int count = ${entityName?uncap_first}Dao.deleteBy${key.fieldName}(${key.fieldName}, operator);
+            // TODO : 后置代码
+            result.setData(count);
+        } catch (Exception e){
+            logger.error("delete${entityName}By${key.fieldName} error:{}", e.getMessage());
             result.setCode("1");
             result.setMessage("1");
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
         return result;
     }
+
+    </#list>
+</#if>
+
+<#if keys??>
+<#--如果只有一列则不执行-->
+    <#if (keys?size>1)>
+        <#assign methodName=''/>
+        <#assign params=''/>
+        <#assign paramNames=''/>
+        <#list keys as key>
+            <#if key?is_last>
+                <#assign methodName = methodName + key.fieldName?cap_first />
+                <#assign params = params + key.javaType+' '+key.fieldName/>
+                <#assign paramNames = paramNames + key.fieldName/>
+            <#else>
+                <#assign methodName = methodName + key.fieldName?cap_first + 'And' />
+                <#assign params = params + key.javaType+' '+key.fieldName + ', '/>
+                <#assign paramNames = paramNames + key.fieldName + ', '/>
+            </#if>
+        </#list>
+    /**
+    * 根据${paramNames}获取对象
+    */
+    @Override
+    @Stat
+    public DataResult<${entityName}> get${entityName}By${methodName} (${params}, int availData){
+        DataResult<${entityName}> result = new DataResult();
+        // TODO: 数据校验
+        //if(){
+        //    result.setCode("1");
+        //    result.setCode("1");
+        //    return result;
+        //}
+        try{
+            // TODO : 前置代码
+            ${entityName} ${entityName?uncap_first} = ${entityName?uncap_first}Dao.getBy${methodName}(${paramNames}, availData);
+            // TODO : 后置代码
+            if(${entityName?uncap_first} != null){
+                result.setData(${entityName?uncap_first});
+            }
+        } catch (Exception e){
+            logger.error("save${entityName}By$${methodName} error:{}", e.getMessage());
+            result.setCode("1");
+            result.setMessage("1");
+        }
+        return result;
+    }
+
+    /**
+    * 根据${paramNames}删除对象
+    */
+    @Override
+    @Stat
+    @Transactional(rollbackFor = Exception.class)
+    public DataResult${'<Integer>'} delete${entityName}By${methodName}(${params}, String operator){
+        DataResult${'<Integer>'} result = new DataResult();
+        // TODO: 数据校验
+        //if(){
+        //    result.setCode("1");
+        //    result.setCode("1");
+        //    return result;
+        //}
+        try{
+            // TODO : 前置代码
+        int count = ${entityName?uncap_first}Dao.deleteBy${methodName}(${paramNames}, operator);
+            // TODO : 后置代码
+            result.setData(count);
+        } catch (Exception e){
+            logger.error("delete${entityName}By${methodName} error:{}", e.getMessage());
+            result.setCode("1");
+            result.setMessage("1");
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        }
+        return result;
+    }
+
+    </#if>
+</#if>
 
     /**
     * 更新对象
@@ -150,15 +268,10 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
     DataResult${'<Boolean>'} update${entityName} (
 <#if columns??>
     <#list columns as column>
-        <#if column.columnName != keyName>
-            <#if column?is_last>
-                ${column.javaType?split(".")?last} ${column.fieldName}
-            <#else >
                 ${column.javaType?split(".")?last} ${column.fieldName},
-            </#if>
-        </#if>
     </#list>
 </#if>
+                String operator
     ){
         DataResult${'<Boolean>'} result = new DataResult();
         if(false){
@@ -168,44 +281,18 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
         }
         try{
             // TODO : 前置代码
-            ${entityName} ${entityName?uncap_first} = ${entityName?uncap_first}Dao.getByKey(code);
+        ${entityName} ${entityName?uncap_first} = new ${entityName}();
 <#if columns??>
     <#list columns as column>
-            ${entityName?uncap_first}.set${column.fieldName?cap_first}(${column.fieldName});
+        ${entityName?uncap_first}.set${column.fieldName?cap_first}(${column.fieldName});
     </#list>
 </#if>
-            ${entityName?uncap_first}Dao.update(${entityName?uncap_first});
+        ${entityName?uncap_first}.set${updaterField?cap_first}(operator);
+        ${entityName?uncap_first}Dao.update(${entityName?uncap_first});
             // TODO : 后置代码
             result.setData(True);
         } catch (Exception e){
             logger.error("update${entityName} error:{}", e.getMessage());
-            result.setCode("1");
-            result.setMessage("1");
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-        }
-        return result;
-    }
-
-    /**
-    * 根据code删除对象
-    */
-    @Override
-    @Stat
-    @Transactional(rollbackFor = Exception.class)
-    DataResult${'<Boolean>'} delete${entityName}ByCode(String code){
-        DataResult${'<Boolean>'} result = new DataResult();
-        if(CommonUtils.isEmpty(code)){
-            result.setCode("1");
-            result.setCode("1");
-            return result;
-        }
-        try{
-            // TODO : 前置代码
-            ${entityName?uncap_first}Dao.deleteByKey(code);
-            // TODO : 后置代码
-            result.setData(Boolean);
-        } catch (Exception e){
-            logger.error("delete${entityName}ByCode error:{}", e.getMessage());
             result.setCode("1");
             result.setMessage("1");
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
