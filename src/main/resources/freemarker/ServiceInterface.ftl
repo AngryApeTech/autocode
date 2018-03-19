@@ -5,8 +5,7 @@ import com.ioe.common.domain.DataResult;
 import com.ioe.common.domain.ListResult;
 import com.ioe.common.domain.PageResult;
 import ${package + '.entity.' + entityName};
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
 * 描述：${tableComment} 服务实现层接口
@@ -69,11 +68,11 @@ public interface ${entityName}Service {
             <#if key?is_last>
                 <#assign methodName = methodName + key.fieldName?cap_first />
                 <#assign params = params + key.javaType+' '+key.fieldName/>
-                <#assign paramNames = params + key.fieldName/>
+                <#assign paramNames = paramNames + key.fieldName/>
             <#else>
                 <#assign methodName = methodName + key.fieldName?cap_first + 'And' />
                 <#assign params = params + key.javaType+' '+key.fieldName + ', ' />
-                <#assign paramNames = params + key.fieldName + ', ' />
+                <#assign paramNames = paramNames + key.fieldName + ', ' />
             </#if>
             <#assign paramComments = paramComments + '* @param '+ key.fieldName +' '+ key.comment+'\n\t'/>
         </#list>
@@ -87,7 +86,7 @@ public interface ${entityName}Service {
     /**
     * 根据${paramNames}删除对象
     ${paramComments}
-    * @param availData 是否是测试数据，0/1:否/是,默认为0
+    * @param operator 操作者编号
     */
     DataResult${'<Integer>'} delete${entityName}By${methodName}(${params}, String operator);
 

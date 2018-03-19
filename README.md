@@ -31,7 +31,7 @@
 |--表相关--|-|-|
 |table.pattern|-|-|
 |columns.sys|-|-|
-|column.updator|-|-|
+|column.updater|-|-|
 |column.delete|-|-|
 |column.delete.value|-|-|
 |query.default|-|-|

@@ -76,9 +76,9 @@ public class CodeGenerator {
             System.exit(1);
         }
         this.queryDefault = (String) properties.get("query.default");
-        this.updaterColumn = (String) properties.get("column.updator");
+        this.updaterColumn = (String) properties.get("column.updater");
         if (CommonUtils.isEmpty(updaterColumn)) {
-            logger.warn("Can not get property [column.updator] for CodeGenerator.");
+            logger.warn("Can not get property [column.updater] for CodeGenerator.");
             System.exit(1);
         }
         String columnsDefault = (String) properties.get("columns.sys");
