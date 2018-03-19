@@ -6,6 +6,7 @@ import com.ioe.common.domain.ListResult;
 import com.ioe.common.domain.PageResult;
 import ${package + '.entity.' + entityName};
 import java.util.*;
+import java.math.BigDecimal;
 
 /**
 * 描述：${tableComment} 服务实现层接口
@@ -18,28 +19,27 @@ public interface ${entityName}Service {
 <#if columns??>
     <#assign index = 0 params = '' paramComments=''/>
     <#list columns as column>
-        <#if !isColumnInKeys(column.columnName, keys)>
-            <#assign index = index+1/>
-            <#if index==(columns?size-keys?size!0)>
-                <#assign params = params + column.javaType?split(".")?last+" "+column.fieldName/>
-            <#else >
-                <#assign params = params + column.javaType?split(".")?last+" "+column.fieldName+', '/>
-            </#if>
+    <#--唯一主键时，不需要传进来；联合主键时需要传进来；系统字段不需要传进来；-->
+        <#if ((keys![])?size>1 ||((keys![])?size==1 && !isColumnInKeys(column.columnName, keys)))
+        && !(sysColumns![])?seq_contains(column.columnName)>
+            <#assign params = params + column.javaType?split(".")?last+" "+column.fieldName+', '/>
             <#assign paramComments = paramComments + '* @param '+ column.fieldName +' '+ column.comment+'\n\t'/>
         </#if>
     </#list>
     /**
     * 单个保存
     ${paramComments}
+    * @param operator 操作者编号
     */
-     DataResult${'<String>'}save${entityName}(${params});
+     DataResult${'<String>'}save${entityName}(${params} String operator);
 </#if>
 
     /**
     * 批量保存
     * @param ${entityName?uncap_first}Json 对象集合 Json 字符串
+    * @param operator 操作者编号
     */
-    DataResult${'<Boolean>'} save${entityName}Batch(String ${entityName?uncap_first}Json);
+    DataResult${'<Boolean>'} save${entityName}Batch(String ${entityName?uncap_first}Json, String operator);
 
 <#--为每个主键生成查询方法-->
 <#if keys??>
@@ -48,13 +48,13 @@ public interface ${entityName}Service {
     * 根据${key.fieldName}获取对象
     * @param ${key.fieldName} ${key.comment}
     */
-    ListResult<${entityName}> get${entityName}By${key.fieldName} (${key.javaType} ${key.fieldName}, int availData);
+    ListResult<${entityName}> get${entityName}By${key.fieldName?cap_first} (${key.javaType} ${key.fieldName}, int availData);
 
     /**
     * 根据${key.fieldName}删除对象
     * @param ${key.fieldName} ${key.comment}
     */
-    DataResult${'<Integer>'} delete${entityName}By${key.fieldName}(${key.javaType} ${key.fieldName}, String operator);
+    DataResult${'<Integer>'} delete${entityName}By${key.fieldName?cap_first}(${key.javaType} ${key.fieldName}, String operator);
 
     </#list>
 </#if>
@@ -78,14 +78,14 @@ public interface ${entityName}Service {
         </#list>
     /**
     * 根据${paramNames}获取对象
-    ${paramComments}
+        ${paramComments}
     * @param availData 是否是测试数据，0/1:否/是,默认为0
     */
     DataResult<${entityName}> get${entityName}By${methodName} (${params}, int availData);
 
     /**
     * 根据${paramNames}删除对象
-    ${paramComments}
+        ${paramComments}
     * @param operator 操作者编号
     */
     DataResult${'<Integer>'} delete${entityName}By${methodName}(${params}, String operator);
@@ -97,13 +97,16 @@ public interface ${entityName}Service {
 <#if columns?? && keys??>
     <#assign fields='' fieldComments=''/>
     <#list columns as column>
-        <#assign fields = fields + column.javaType?split(".")?last+' '+ column.fieldName + ', '/>
-        <#assign fieldComments = fieldComments + '* @param '+ column.fieldName +' '+ column.comment+'\n\t'/>
+        <#if !((sysColumns![])?seq_contains(column.columnName))>
+            <#assign fields = fields + column.javaType?split(".")?last+' '+ column.fieldName + ', '/>
+            <#assign fieldComments = fieldComments + '* @param '+ column.fieldName +' '+ column.comment+'\n\t'/>
+        </#if>
     </#list>
-    <#assign fields = fields + 'String operatot'/>
+    <#assign fields = fields + 'String operator'/>
     /**
     * 更新对象
     ${fieldComments}
+    * @param operator 操作者编号
     */
     DataResult${'<Boolean>'} update${entityName}(${fields});
 </#if>
@@ -129,7 +132,7 @@ public interface ${entityName}Service {
     /**
     * 根据${paramNames}查询记录
     *
-    ${fieldComments}
+        ${fieldComments}
     */
     ListResult<${entityName}> get${entityName}By${methodName} (${params}, int availData);
 

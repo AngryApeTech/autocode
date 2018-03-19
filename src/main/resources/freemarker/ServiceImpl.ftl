@@ -11,6 +11,7 @@ import com.ioe.common.domain.DataResult;
 import com.ioe.common.domain.ListResult;
 import com.ioe.common.domain.PageResult;
 import java.util.*;
+import java.math.BigDecimal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSONObject;
@@ -41,15 +42,12 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
 <#if columns??>
     <#assign index = 0/>
     <#list columns as column>
-        <#if !isColumnInKeys(column.columnName, keys)>
-            <#assign index = index+1/>
-            <#if index==(columns?size-keys?size!0)>
-                ${column.javaType?split(".")?last} ${column.fieldName}
-            <#else >
-                ${column.javaType?split(".")?last} ${column.fieldName},
-            </#if>
+        <#if ((keys![])?size>1 ||((keys![])?size==1 && !isColumnInKeys(column.columnName, keys)))
+        && !(sysColumns![])?seq_contains(column.columnName)>
+            ${column.javaType?split(".")?last} ${column.fieldName},
         </#if>
     </#list>
+            String operator
 </#if>
     ){
         DataResult${'<String>'} result = new DataResult();
@@ -87,7 +85,7 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
     @Override
     @Stat
     @Transactional(rollbackFor = Exception.class)
-    DataResult${'<Boolean>'} save${entityName}Batch (String ${entityName?uncap_first}Json){
+    DataResult${'<Boolean>'} save${entityName}Batch (String ${entityName?uncap_first}Json, String operator){
         if(CommonUtils.isEmpty(${entityName?uncap_first}Json)){
             result.setCode("1");
             result.setCode("1");
@@ -124,7 +122,7 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
     */
     @Override
     @Stat
-    public ListResult<${entityName}> get${entityName}By${key.fieldName} (${key.javaType} ${key.fieldName}, int availData){
+    public ListResult<${entityName}> get${entityName}By${key.fieldName?cap_first} (${key.javaType} ${key.fieldName}, int availData){
         ListResult<${entityName}> result = new ListResult();
         <#if key.javaType=="String">
         if(CommonUtils.isEmpty(${key.fieldName})){
@@ -143,7 +141,7 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
                 result.setDataList(${entityName?uncap_first}List);
             }
         } catch (Exception e){
-            logger.error("save${entityName}By${key.fieldName} error:{}", e.getMessage());
+            logger.error("save${entityName}By${key.fieldName?cap_first} error:{}", e.getMessage());
             result.setCode("1");
             result.setMessage("1");
         }
@@ -156,7 +154,7 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
     @Override
     @Stat
     @Transactional(rollbackFor = Exception.class)
-    public DataResult${'<Integer>'} delete${entityName}By${key.fieldName}(${key.javaType} ${key.fieldName}, String operator){
+    public DataResult${'<Integer>'} delete${entityName}By${key.fieldName?cap_first}(${key.javaType} ${key.fieldName}, String operator){
         DataResult${'<Integer>'} result = new DataResult();
         <#if key.javaType=="String">
         if(CommonUtils.isEmpty(${key.fieldName})){
@@ -169,11 +167,11 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
         }
         try{
             // TODO : 前置代码
-        int count = ${entityName?uncap_first}Dao.deleteBy${key.fieldName}(${key.fieldName}, operator);
+        int count = ${entityName?uncap_first}Dao.deleteBy${key.fieldName?cap_first}(${key.fieldName}, operator);
             // TODO : 后置代码
             result.setData(count);
         } catch (Exception e){
-            logger.error("delete${entityName}By${key.fieldName} error:{}", e.getMessage());
+            logger.error("delete${entityName}By${key.fieldName?cap_first} error:{}", e.getMessage());
             result.setCode("1");
             result.setMessage("1");
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -272,7 +270,9 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
     DataResult${'<Boolean>'} update${entityName} (
 <#if columns??>
     <#list columns as column>
+        <#if !((sysColumns![])?seq_contains(column.columnName))>
                 ${column.javaType?split(".")?last} ${column.fieldName},
+        </#if>
     </#list>
 </#if>
                 String operator
