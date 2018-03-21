@@ -149,11 +149,13 @@ public class CodeGenerator {
 //            if (CommonUtils.isEmpty(keys)) {
 //                throw new Exception("No primary key of table: " + tableName);
 //            }
+            keys.forEach(System.out::println);
 
             //TODO:获取索引信息
             resultSet = metaData.getIndexInfo(null, null, tableName, false, false);
             List<IndexMeta> indexes = JdbcUtil.parseIndexes(tableName, resultSet, columns);
             indexes.forEach(System.out::println);
+            resultSet.close();
             // 构造 freemarker 变量
             Map<String, Object> dataMap = new HashMap<>();
             dataMap.put("package", packageName);    //文件包名

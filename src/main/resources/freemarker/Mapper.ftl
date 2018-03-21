@@ -2,9 +2,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
         "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
-<mapper namespace="${package}.dao.${tableName}Dao">
+<mapper namespace="${package}.dao.${entityName}Dao">
 
-    <resultMap id="resultMap" type="${package}.dto.${tableName}Entity">
+    <resultMap id="resultMap" type="${package}.entity.${entityName}">
         <#if columns??>
             <#list columns as column>
         <result property="${column.fieldName}" column="${column.columnName}" jdbcType="${column.jdbcType}"/>
@@ -25,8 +25,8 @@
         </#if>
     </sql>
 
-    ${'<!-- single entity save -->'}
-    <insert id="save">
+    ${'<!-- single entity create -->'}
+    <insert id="create${entityName?cap_first}">
         insert into
         <include refid="tableName"/>
         (<include refid="columns"/>) values
@@ -43,8 +43,8 @@
         )
     </insert>
 
-    ${'<!-- mutipule entity save -->'}
-    <insert id="insertBatch">
+    ${'<!-- mutipule entity create -->'}
+    <insert id="create${entityName?cap_first}Batch">
         insert into
         <include refid="tableName"/>
         (<include refid="columns"/>) values
@@ -66,8 +66,8 @@
 <#--为每个主键生成查询方法-->
 <#if keys??>
     <#list keys as key>
-    ${'<!-- get entity by '+key.fieldName+' -->'}
-    <select id="getBy${key.fieldName?cap_first}" resultMap="resultMap">
+    ${'<!-- query entity by '+key.fieldName+' -->'}
+    <select id="query${entityName?cap_first}By${key.fieldName?cap_first}" resultMap="resultMap">
         select <include refid="columns"/>
         from <include refid="tableName"/>
         where ${key.fieldName} = ${r'#{'+key.fieldName+'}'}
@@ -76,7 +76,7 @@
         </#if>
     </select>
 
-    <update id="deleteBy${key.fieldName?cap_first}">
+    <update id="delete${entityName?cap_first}By${key.fieldName?cap_first}">
         update <include refid="tableName"/>
         set ${deleteColumn}=${deleteValue}, ${updaterColumn}=${r'#{operator}'}
         where ${key.fieldName}=${r'#{'+key.fieldName+'}'}
@@ -103,7 +103,7 @@
                 <#assign updateSql = params + key.fieldName+'='+r'#{entity.'+key.fieldName+'} and ' />
             </#if>
         </#list>
-    <select id="getBy${methodName}" resultMap="resultMap">
+    <select id="query${entityName?cap_first}By${methodName}" resultMap="resultMap">
         select <include refid="columns"/>
         from <include refid="tableName"/>
         where ${params}
@@ -112,7 +112,7 @@
         </#if>
     </select>
 
-    <update id="deleteBy${methodName}">
+    <update id="delete${entityName?cap_first}By${methodName}">
         update <include refid="tableName"/>
         set ${deleteColumn}=${deleteValue}, ${updaterColumn}=${r'#{operator}'}
         where ${params}
@@ -125,7 +125,7 @@
 <#--生成更新方法-->
 <#if keys??>
 ${'<!-- update entity -->'}
-    <update id="update" parameterType="${package}.entity.${entityName}">
+    <update id="update${entityName?cap_first}" parameterType="${package}.entity.${entityName}">
         update
         <include refid="tableName"/>
         set
@@ -158,7 +158,7 @@ ${'<!-- update entity -->'}
                     <#assign methodName=methodName+col.fieldName?cap_first+'And'/>
                 </#if>
             </#list>
-    <select id="getBy${methodName}" resultMap="resultMap">
+    <select id="query${entityName?cap_first}By${methodName}" resultMap="resultMap">
         select <include refid="columns"/>
         from <include refid="tableName"/>
         where 1=1
@@ -174,4 +174,12 @@ ${'<!-- update entity -->'}
         </#if>
     </#list>
 </#if>
+    <update id="updateAvailDataFlag">
+        update <include refid="tableName"/>
+        set sys_avail_data=${r'#{flag}'}
+        where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            ${r'#{id}'}
+        </foreach>
+    </update>
 </mapper>

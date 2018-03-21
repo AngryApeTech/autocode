@@ -10,22 +10,22 @@ import java.util.*;
 * @author ${author}
 * @date ${date}
 */
-public interface ${entityName}Dao {
+public interface ${entityName}Dao extends BaseDao{
 
-    int save(@Param("entity")${entityName} entity);
+    int create${entityName?cap_first}(@Param("entity")${entityName} entity);
 
-    int saveBatch(@Param("entities")List<${entityName}> entities);
+    int create${entityName?cap_first}Batch(@Param("entities")List<${entityName}> entities);
 
 <#if keys??>
-    int update(@Param("entity")${entityName} entity);
+    int update${entityName?cap_first}(@Param("entity")${entityName} entity);
 </#if>
 
 <#--为每个主键生成查询方法-->
 <#if keys??>
     <#list keys as key>
-    List<${entityName}> getBy${key.fieldName?cap_first} (@Param("${key.fieldName}")String ${key.fieldName}, @Param("availData")int availData);
+    List<${entityName}> query${entityName?cap_first}By${key.fieldName?cap_first} (@Param("${key.fieldName}")String ${key.fieldName}, @Param("availData")int availData);
 
-    int deleteBy${key.fieldName?cap_first} (String ${key.fieldName}, @Param("operator")String operator);
+    int delete${entityName?cap_first}By${key.fieldName?cap_first} (String ${key.fieldName}, @Param("operator")String operator);
 
     </#list>
 </#if>
@@ -45,9 +45,9 @@ public interface ${entityName}Dao {
                 <#assign params = params + '@Param("'+key.fieldName+'")'+key.javaType+' '+key.fieldName + ', '/>
             </#if>
         </#list>
-    ${entityName} getBy${methodName}(${params}, @Param("availData")int availData);
+    ${entityName} query${entityName?cap_first}By${methodName}(${params}, @Param("availData")int availData);
 
-    int deleteBy${methodName} (${params}, @Param("operator")String operator);
+    int delete${entityName?cap_first}By${methodName} (${params}, @Param("operator")String operator);
     </#if>
 </#if>
 
@@ -72,8 +72,10 @@ public interface ${entityName}Dao {
     /**
     * index:${index.tableName +' ==> '+ index.name}
     */
-    List<${entityName}> getBy${methodName} (${params}, @Param("availData")int availData);
+    List<${entityName}> query${entityName?cap_first}By${methodName} (${params}, @Param("availData")int availData);
 
     </#list>
 </#if>
+
+    int updateAvailDataFlag(@Param("ids")List${'<String>'} ids, @Param("flag")int flag);
 }

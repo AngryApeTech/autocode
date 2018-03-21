@@ -188,7 +188,7 @@ public class JdbcUtil {
                 return "String";
             case "NUMERIC":
             case "DECIMAL":
-                return "java.math.BigDecimal";
+                return "Double";
             case "BIT":
                 return "Boolean";
             case "TINYINT":

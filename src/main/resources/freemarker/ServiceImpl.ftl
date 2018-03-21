@@ -17,7 +17,8 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSONObject;
 
 import ${package + '.entity.' + entityName};
-import ${package + '.service.' + entityName};
+import ${package + '.dao.' + entityName}Dao;
+import ${package + '.service.' + entityName}Service;
 
 /**
 * 描述：${tableComment}
@@ -25,9 +26,7 @@ import ${package + '.service.' + entityName};
 * @date ${date}
 */
 @Service("${entityName?uncap_first}Service")
-public class ${entityName}ServiceImpl implements ${entityName}Service {
-
-    private static Logger logger = LoggerFactory.getLogger(${entityName}ServiceImpl.class);
+public class ${entityName}ServiceImpl extends BaseServiceImpl implements ${entityName}Service {
 
     @Resource
     private ${entityName}Dao ${entityName?uncap_first}Dao;
@@ -35,10 +34,9 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
     /**
     * 单个保存
     */
-    @Override
     @Stat
     @Transactional(rollbackFor = Exception.class)
-    DataResult${'<String>'} save${entityName}(
+    public DataResult${'<String>'} create${entityName}(
 <#if columns??>
     <#assign index = 0/>
     <#list columns as column>
@@ -47,7 +45,7 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
             ${column.javaType?split(".")?last} ${column.fieldName},
         </#if>
     </#list>
-            String operator
+            String _accountId
 </#if>
     ){
         DataResult${'<String>'} result = new DataResult();
@@ -68,10 +66,10 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
         </#if>
     </#list>
 </#if>
-            ${entityName?uncap_first}Dao.save(${entityName?uncap_first});
+            ${entityName?uncap_first}Dao.create${entityName?cap_first}(${entityName?uncap_first});
             // TODO : 后置代码
         } catch (Exception e){
-            logger.error("save${entityName} error:{}", e.getMessage());
+            logger.error("create${entityName} error:{}", e.getMessage());
             result.setCode("1");
             result.setMessage("1");
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -82,10 +80,10 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
     /**
     * 批量保存
     */
-    @Override
     @Stat
     @Transactional(rollbackFor = Exception.class)
-    DataResult${'<Boolean>'} save${entityName}Batch (String ${entityName?uncap_first}Json, String operator){
+    public DataResult${'<Boolean>'} create${entityName}Batch (String ${entityName?uncap_first}Json, String _accountId){
+        DataResult${'<Boolean>'} result = new DataResult();
         if(CommonUtils.isEmpty(${entityName?uncap_first}Json)){
             result.setCode("1");
             result.setCode("1");
@@ -101,12 +99,12 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
             }
 
             // TODO : 前置代码
-            ${entityName?uncap_first}Dao.saveBatch(${entityName?uncap_first}List);
-            result.setData(True);
+            ${entityName?uncap_first}Dao.create${entityName?cap_first}Batch(${entityName?uncap_first}List);
+            result.setData(true);
 
             // TODO : 后置代码
         } catch (Exception e){
-            logger.error("save${entityName}Batch error:{}", e.getMessage());
+            logger.error("create${entityName}Batch error:{}", e.getMessage());
             result.setCode("1");
             result.setMessage("1");
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -120,9 +118,8 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
     /**
     * 根据${key.fieldName}获取对象
     */
-    @Override
     @Stat
-    public ListResult<${entityName}> get${entityName}By${key.fieldName?cap_first} (${key.javaType} ${key.fieldName}, int availData){
+    public ListResult<${entityName}> query${entityName?cap_first}By${key.fieldName?cap_first} (${key.javaType} ${key.fieldName}, int availData){
         ListResult<${entityName}> result = new ListResult();
         <#if key.javaType=="String">
         if(CommonUtils.isEmpty(${key.fieldName})){
@@ -135,13 +132,13 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
         }
         try{
             // TODO : 前置代码
-            List<${entityName}> ${entityName?uncap_first}List = ${entityName?uncap_first}Dao.getBy${key.fieldName?cap_first}(${key.fieldName}, availData);
+            List<${entityName}> ${entityName?uncap_first}List = ${entityName?uncap_first}Dao.query${entityName?cap_first}By${key.fieldName?cap_first}(${key.fieldName}, availData);
             // TODO : 后置代码
             if(CommonUtils.isNotEmpty(${entityName?uncap_first}List)){
                 result.setDataList(${entityName?uncap_first}List);
             }
         } catch (Exception e){
-            logger.error("save${entityName}By${key.fieldName?cap_first} error:{}", e.getMessage());
+            logger.error("create${entityName?cap_first}By${key.fieldName?cap_first} error:{}", e.getMessage());
             result.setCode("1");
             result.setMessage("1");
         }
@@ -151,10 +148,9 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
     /**
     * 根据${key.fieldName}删除对象
     */
-    @Override
     @Stat
     @Transactional(rollbackFor = Exception.class)
-    public DataResult${'<Integer>'} delete${entityName}By${key.fieldName?cap_first}(${key.javaType} ${key.fieldName}, String operator){
+    public DataResult${'<Integer>'} delete${entityName?cap_first}By${key.fieldName?cap_first}(${key.javaType} ${key.fieldName}, String _accountId){
         DataResult${'<Integer>'} result = new DataResult();
         <#if key.javaType=="String">
         if(CommonUtils.isEmpty(${key.fieldName})){
@@ -167,11 +163,11 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
         }
         try{
             // TODO : 前置代码
-        int count = ${entityName?uncap_first}Dao.deleteBy${key.fieldName?cap_first}(${key.fieldName}, operator);
+        int count = ${entityName?uncap_first}Dao.delete${entityName?cap_first}By${key.fieldName?cap_first}(${key.fieldName}, _accountId);
             // TODO : 后置代码
             result.setData(count);
         } catch (Exception e){
-            logger.error("delete${entityName}By${key.fieldName?cap_first} error:{}", e.getMessage());
+            logger.error("delete${entityName?cap_first}By${key.fieldName?cap_first} error:{}", e.getMessage());
             result.setCode("1");
             result.setMessage("1");
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -203,9 +199,8 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
     /**
     * 根据${paramNames}获取对象
     */
-    @Override
     @Stat
-    public DataResult<${entityName}> get${entityName}By${methodName} (${params}, int availData){
+    public DataResult<${entityName}> query${entityName?cap_first}By${methodName} (${params}, int availData){
         DataResult<${entityName}> result = new DataResult();
         // TODO: 数据校验
         //if(){
@@ -215,13 +210,13 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
         //}
         try{
             // TODO : 前置代码
-            ${entityName} ${entityName?uncap_first} = ${entityName?uncap_first}Dao.getBy${methodName}(${paramNames}, availData);
+            ${entityName} ${entityName?uncap_first} = ${entityName?uncap_first}Dao.query${entityName?cap_first}By${methodName}(${paramNames}, availData);
             // TODO : 后置代码
             if(${entityName?uncap_first} != null){
                 result.setData(${entityName?uncap_first});
             }
         } catch (Exception e){
-            logger.error("save${entityName}By$${methodName} error:{}", e.getMessage());
+            logger.error("query${entityName?cap_first}By${methodName} error:{}", e.getMessage());
             result.setCode("1");
             result.setMessage("1");
         }
@@ -231,10 +226,9 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
     /**
     * 根据${paramNames}删除对象
     */
-    @Override
     @Stat
     @Transactional(rollbackFor = Exception.class)
-    public DataResult${'<Integer>'} delete${entityName}By${methodName}(${params}, String operator){
+    public DataResult${'<Integer>'} delete${entityName?cap_first}By${methodName}(${params}, String _accountId){
         DataResult${'<Integer>'} result = new DataResult();
         // TODO: 数据校验
         //if(){
@@ -244,11 +238,11 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
         //}
         try{
             // TODO : 前置代码
-        int count = ${entityName?uncap_first}Dao.deleteBy${methodName}(${paramNames}, operator);
+        int count = ${entityName?uncap_first}Dao.delete${entityName?cap_first}By${methodName}(${paramNames}, _accountId);
             // TODO : 后置代码
             result.setData(count);
         } catch (Exception e){
-            logger.error("delete${entityName}By${methodName} error:{}", e.getMessage());
+            logger.error("delete${entityName?cap_first}By${methodName} error:{}", e.getMessage());
             result.setCode("1");
             result.setMessage("1");
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -264,10 +258,9 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
     /**
     * 更新对象
     */
-    @Override
     @Stat
     @Transactional(rollbackFor = Exception.class)
-    DataResult${'<Boolean>'} update${entityName} (
+    public DataResult${'<Boolean>'} update${entityName} (
 <#if columns??>
     <#list columns as column>
         <#if !((sysColumns![])?seq_contains(column.columnName))>
@@ -275,7 +268,7 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
         </#if>
     </#list>
 </#if>
-                String operator
+                String _accountId
     ){
         DataResult${'<Boolean>'} result = new DataResult();
         if(false){
@@ -288,13 +281,15 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
         ${entityName} ${entityName?uncap_first} = new ${entityName}();
 <#if columns??>
     <#list columns as column>
+        <#if !((sysColumns![])?seq_contains(column.columnName))>
         ${entityName?uncap_first}.set${column.fieldName?cap_first}(${column.fieldName});
+        </#if>
     </#list>
 </#if>
-        ${entityName?uncap_first}.set${updaterField?cap_first}(operator);
-        ${entityName?uncap_first}Dao.update(${entityName?uncap_first});
+        ${entityName?uncap_first}.set${updaterField?cap_first}(_accountId);
+        ${entityName?uncap_first}Dao.update${entityName?cap_first}(${entityName?uncap_first});
             // TODO : 后置代码
-            result.setData(True);
+            result.setData(true);
         } catch (Exception e){
             logger.error("update${entityName} error:{}", e.getMessage());
             result.setCode("1");
@@ -328,9 +323,8 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
     *
     ${fieldComments}
     */
-    @Override
     @Stat
-    public ListResult<${entityName}> get${entityName}By${methodName} (${params}, int availData){
+    public ListResult<${entityName}> query${entityName?cap_first}By${methodName} (${params}, int availData){
         ListResult<${entityName}> result = new ListResult();
         //TODO:数据校验
         //if(){
@@ -340,13 +334,13 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
         //}
         try{
             // TODO : 前置代码
-            List<${entityName}> ${entityName?uncap_first}List = ${entityName?uncap_first}Dao.getBy${methodName}(${paramNames}, availData);
+            List<${entityName}> ${entityName?uncap_first}List = ${entityName?uncap_first}Dao.query${entityName?cap_first}By${methodName}(${paramNames}, availData);
             // TODO : 后置代码
             if(CommonUtils.isNotEmpty(${entityName?uncap_first}List)){
                 result.setDataList(${entityName?uncap_first}List);
             }
         } catch (Exception e){
-            logger.error("get${entityName}By${methodName} error:{}", e.getMessage());
+            logger.error("query${entityName?cap_first}By${methodName} error:{}", e.getMessage());
             result.setCode("1");
             result.setMessage("1");
         }
@@ -355,4 +349,8 @@ public class ${entityName}ServiceImpl implements ${entityName}Service {
 
     </#list>
 </#if>
+
+    protected void setDao() {
+        dao = ${entityName?uncap_first}Dao;
+    }
 }

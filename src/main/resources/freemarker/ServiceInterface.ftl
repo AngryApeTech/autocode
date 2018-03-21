@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 * @author ${author}
 * @date ${date}
 */
-public interface ${entityName}Service {
+public interface ${entityName}Service extends BaseService {
 
 
 <#if columns??>
@@ -29,17 +29,17 @@ public interface ${entityName}Service {
     /**
     * 单个保存
     ${paramComments}
-    * @param operator 操作者编号
+    * @param _accountId 操作者编号
     */
-     DataResult${'<String>'}save${entityName}(${params} String operator);
+     DataResult${'<String>'}create${entityName}(${params} String _accountId);
 </#if>
 
     /**
     * 批量保存
     * @param ${entityName?uncap_first}Json 对象集合 Json 字符串
-    * @param operator 操作者编号
+    * @param _accountId 操作者编号
     */
-    DataResult${'<Boolean>'} save${entityName}Batch(String ${entityName?uncap_first}Json, String operator);
+    DataResult${'<Boolean>'} create${entityName}Batch(String ${entityName?uncap_first}Json, String _accountId);
 
 <#--为每个主键生成查询方法-->
 <#if keys??>
@@ -48,13 +48,13 @@ public interface ${entityName}Service {
     * 根据${key.fieldName}获取对象
     * @param ${key.fieldName} ${key.comment}
     */
-    ListResult<${entityName}> get${entityName}By${key.fieldName?cap_first} (${key.javaType} ${key.fieldName}, int availData);
+    ListResult<${entityName}> query${entityName?cap_first}By${key.fieldName?cap_first} (${key.javaType} ${key.fieldName}, int availData);
 
     /**
     * 根据${key.fieldName}删除对象
     * @param ${key.fieldName} ${key.comment}
     */
-    DataResult${'<Integer>'} delete${entityName}By${key.fieldName?cap_first}(${key.javaType} ${key.fieldName}, String operator);
+    DataResult${'<Integer>'} delete${entityName?cap_first}By${key.fieldName?cap_first}(${key.javaType} ${key.fieldName}, String _accountId);
 
     </#list>
 </#if>
@@ -81,14 +81,14 @@ public interface ${entityName}Service {
         ${paramComments}
     * @param availData 是否是测试数据，0/1:否/是,默认为0
     */
-    DataResult<${entityName}> get${entityName}By${methodName} (${params}, int availData);
+    DataResult<${entityName}> query${entityName?cap_first}By${methodName} (${params}, int availData);
 
     /**
     * 根据${paramNames}删除对象
         ${paramComments}
-    * @param operator 操作者编号
+    * @param _accountId 操作者编号
     */
-    DataResult${'<Integer>'} delete${entityName}By${methodName}(${params}, String operator);
+    DataResult${'<Integer>'} delete${entityName?cap_first}By${methodName}(${params}, String _accountId);
 
     </#if>
 </#if>
@@ -102,11 +102,11 @@ public interface ${entityName}Service {
             <#assign fieldComments = fieldComments + '* @param '+ column.fieldName +' '+ column.comment+'\n\t'/>
         </#if>
     </#list>
-    <#assign fields = fields + 'String operator'/>
+    <#assign fields = fields + 'String _accountId'/>
     /**
     * 更新对象
     ${fieldComments}
-    * @param operator 操作者编号
+    * @param _accountId 操作者编号
     */
     DataResult${'<Boolean>'} update${entityName}(${fields});
 </#if>
@@ -134,7 +134,7 @@ public interface ${entityName}Service {
     *
         ${fieldComments}
     */
-    ListResult<${entityName}> get${entityName}By${methodName} (${params}, int availData);
+    ListResult<${entityName}> query${entityName?cap_first}By${methodName} (${params}, int availData);
 
     </#list>
 </#if>
