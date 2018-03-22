@@ -119,7 +119,7 @@ public class ${entityName}ServiceImpl extends BaseServiceImpl implements ${entit
     * 根据${key.fieldName}获取对象
     */
     @Stat
-    public ListResult<${entityName}> query${entityName?cap_first}By${key.fieldName?cap_first} (${key.javaType} ${key.fieldName}, int availData){
+    public ListResult<${entityName}> query${entityName?cap_first}By${key.fieldName?cap_first} (${key.javaType} ${key.fieldName}){
         ListResult<${entityName}> result = new ListResult();
         <#if key.javaType=="String">
         if(CommonUtils.isEmpty(${key.fieldName})){
@@ -200,7 +200,7 @@ public class ${entityName}ServiceImpl extends BaseServiceImpl implements ${entit
     * 根据${paramNames}获取对象
     */
     @Stat
-    public DataResult<${entityName}> query${entityName?cap_first}By${methodName} (${params}, int availData){
+    public DataResult<${entityName}> query${entityName?cap_first}By${methodName} (${params}){
         DataResult<${entityName}> result = new DataResult();
         // TODO: 数据校验
         //if(){
@@ -324,7 +324,7 @@ public class ${entityName}ServiceImpl extends BaseServiceImpl implements ${entit
     ${fieldComments}
     */
     @Stat
-    public ListResult<${entityName}> query${entityName?cap_first}By${methodName} (${params}, int availData){
+    public ListResult<${entityName}> query${entityName?cap_first}By${methodName} (${params}){
         ListResult<${entityName}> result = new ListResult();
         //TODO:数据校验
         //if(){

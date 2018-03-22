@@ -23,7 +23,7 @@ public interface ${entityName}Dao extends BaseDao{
 <#--为每个主键生成查询方法-->
 <#if keys??>
     <#list keys as key>
-    List<${entityName}> query${entityName?cap_first}By${key.fieldName?cap_first} (@Param("${key.fieldName}")String ${key.fieldName}, @Param("availData")int availData);
+    List<${entityName}> query${entityName?cap_first}By${key.fieldName?cap_first} (@Param("${key.fieldName}")String ${key.fieldName});
 
     int delete${entityName?cap_first}By${key.fieldName?cap_first} (String ${key.fieldName}, @Param("operator")String operator);
 
@@ -45,7 +45,7 @@ public interface ${entityName}Dao extends BaseDao{
                 <#assign params = params + '@Param("'+key.fieldName+'")'+key.javaType+' '+key.fieldName + ', '/>
             </#if>
         </#list>
-    ${entityName} query${entityName?cap_first}By${methodName}(${params}, @Param("availData")int availData);
+    ${entityName} query${entityName?cap_first}By${methodName}(${params});
 
     int delete${entityName?cap_first}By${methodName} (${params}, @Param("operator")String operator);
     </#if>
@@ -72,7 +72,7 @@ public interface ${entityName}Dao extends BaseDao{
     /**
     * index:${index.tableName +' ==> '+ index.name}
     */
-    List<${entityName}> query${entityName?cap_first}By${methodName} (${params}, @Param("availData")int availData);
+    List<${entityName}> query${entityName?cap_first}By${methodName} (${params});
 
     </#list>
 </#if>

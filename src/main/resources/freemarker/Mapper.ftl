@@ -70,7 +70,7 @@
     <select id="query${entityName?cap_first}By${key.fieldName?cap_first}" resultMap="resultMap">
         select <include refid="columns"/>
         from <include refid="tableName"/>
-        where ${key.fieldName} = ${r'#{'+key.fieldName+'}'}
+        where ${key.columnName} = ${r'#{'+key.fieldName+'}'}
         <#if queryDefault??>
         and ${queryDefault}
         </#if>

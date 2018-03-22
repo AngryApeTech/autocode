@@ -48,7 +48,7 @@ public interface ${entityName}Service extends BaseService {
     * 根据${key.fieldName}获取对象
     * @param ${key.fieldName} ${key.comment}
     */
-    ListResult<${entityName}> query${entityName?cap_first}By${key.fieldName?cap_first} (${key.javaType} ${key.fieldName}, int availData);
+    ListResult<${entityName}> query${entityName?cap_first}By${key.fieldName?cap_first} (${key.javaType} ${key.fieldName});
 
     /**
     * 根据${key.fieldName}删除对象
@@ -81,7 +81,7 @@ public interface ${entityName}Service extends BaseService {
         ${paramComments}
     * @param availData 是否是测试数据，0/1:否/是,默认为0
     */
-    DataResult<${entityName}> query${entityName?cap_first}By${methodName} (${params}, int availData);
+    DataResult<${entityName}> query${entityName?cap_first}By${methodName} (${params});
 
     /**
     * 根据${paramNames}删除对象
@@ -134,7 +134,7 @@ public interface ${entityName}Service extends BaseService {
     *
         ${fieldComments}
     */
-    ListResult<${entityName}> query${entityName?cap_first}By${methodName} (${params}, int availData);
+    ListResult<${entityName}> query${entityName?cap_first}By${methodName} (${params});
 
     </#list>
 </#if>
