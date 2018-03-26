@@ -2,6 +2,7 @@ package ${package}.entity;
 
 import java.util.*;
 import java.math.BigDecimal;
+import com.ioe.common.domain.BaseEntity;
 
 /**
 * 描述：${tableComment}

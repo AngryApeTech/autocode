@@ -49,7 +49,7 @@ public class CodeGenerator {
     }
 
     public void config(Properties properties) {
-//        properties.forEach((key, value) -> System.out.println(key));
+        //        properties.forEach((key, value) -> System.out.println(key));
         if (properties == null || properties.size() <= 0) {
             logger.error("No configuration for generator environment.");
             return;
@@ -65,6 +65,7 @@ public class CodeGenerator {
             logger.warn("Can not get property [file.path] for CodeGenerator.");
             System.exit(1);
         }
+        filePath = filePath.endsWith("/") ? filePath : filePath + "/";
         this.deleteColumn = (String) properties.get("column.delete");
         if (CommonUtils.isEmpty(deleteColumn)) {
             logger.warn("Can not get property [table.pattern] for CodeGenerator.");
@@ -126,7 +127,6 @@ public class CodeGenerator {
     }
 
     /**
-     *
      * @param metaData
      * @param tableName
      * @param entityName
@@ -134,21 +134,21 @@ public class CodeGenerator {
      * @throws Exception
      */
     private void generateFiles(DatabaseMetaData metaData, String tableName, String entityName,
-                               String comment) throws Exception {
+            String comment) throws Exception {
         try {
             //获取字段信息
             ResultSet resultSet = metaData.getColumns(null, "%", tableName, "%");
             List<ColumnMeta> columns = JdbcUtil.parseColumns(resultSet);
             resultSet.close();
-//            columns.forEach(System.out::println);
+            //            columns.forEach(System.out::println);
 
             //获取主键信息
             resultSet = metaData.getPrimaryKeys(null, null, tableName);
             List<ColumnMeta> keys = JdbcUtil.parseKeys(resultSet, columns);
             resultSet.close();
-//            if (CommonUtils.isEmpty(keys)) {
-//                throw new Exception("No primary key of table: " + tableName);
-//            }
+            //            if (CommonUtils.isEmpty(keys)) {
+            //                throw new Exception("No primary key of table: " + tableName);
+            //            }
             keys.forEach(System.out::println);
 
             //TODO:获取索引信息
@@ -237,7 +237,7 @@ public class CodeGenerator {
     }
 
     private void generateFileByTemplate(final String templateName, String pathSuffix,
-                                        String fileSuffix, Map<String, Object> dataMap) throws Exception {
+            String fileSuffix, Map<String, Object> dataMap) throws Exception {
         final String path = filePath + packagePath + pathSuffix + "/";
         File pkgPath = new File(path);
         if (!pkgPath.exists()) {
